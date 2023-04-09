@@ -1,4 +1,4 @@
-import Menu from './menu';
+import Header from './header';
 
 interface Props {
   children: JSX.Element | JSX.Element[];
@@ -7,7 +7,7 @@ interface Props {
 export default function Layout({ children }: Props): JSX.Element {
   return (
     <>
-      <Menu />
+      <Header />
       {children}
     </>
   );
