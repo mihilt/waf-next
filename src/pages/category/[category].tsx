@@ -22,11 +22,11 @@ import { getPostsApi } from '../../apis';
 import Page from '../../components/page';
 import Layout from '../../layout';
 import { isSameDate } from '../../utils';
+import { Posts } from '../../types';
 
 interface Props {
   count: number;
-  // TODO: posts: Post[];
-  posts: any;
+  posts: Posts;
 }
 
 export default function Category({ count, posts }: Props): JSX.Element {
@@ -35,11 +35,13 @@ export default function Category({ count, posts }: Props): JSX.Element {
 
   const {
     category,
-    searchType: searchTypeQueryString,
-    searchValue: searchValueQueryString,
+    'search-type': searchTypeQueryString,
+    'search-value': searchValueQueryString,
   } = router.query;
 
-  const [searchType, setSearchType] = useState(searchTypeQueryString || 'title+contents');
+  const [searchType, setSearchType] = useState(
+    String(searchTypeQueryString)?.replace(' ', '+') || 'title+contents',
+  );
   const [searchValue, setSearchValue] = useState(searchValueQueryString);
 
   const isSmallerThanSm = useMediaQuery(theme.breakpoints.down('sm'));
@@ -59,8 +61,10 @@ export default function Category({ count, posts }: Props): JSX.Element {
           <Box sx={{ display: 'flex', p: 1 }}>
             <Box
               sx={{ cursor: 'pointer', fontSize: '1.2rem', fontWeight: 700, color: '#000999' }}
-              onClick={() => {
+              onClick={async () => {
                 Router.push(`/category/${category}`);
+                setSearchType('title+contents');
+                setSearchValue('');
               }}
             >
               {category} 채널
@@ -68,41 +72,36 @@ export default function Category({ count, posts }: Props): JSX.Element {
           </Box>
           <Divider />
           {isSmallerThanSm ? (
-            posts.map(
-              (
-                //TODO: post: Post
-                post: any,
-              ) => (
-                <Grid
-                  container
-                  key={post.postId}
-                  sx={{
-                    textAlign: 'center',
-                    fontSize: '0.65rem',
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
-                    },
-                    borderBottom: '1px solid #e0e0e0',
-                    p: 1,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Grid item xs={12} sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
-                    {post.title}
-                    <span style={{ color: '#000999', fontSize: '10px', fontWeight: 700 }}>
-                      [{post.commentCount}]
-                    </span>
-                  </Grid>
-                  <Grid item xs={12} sx={{ textAlign: 'left' }}>
-                    {post.author}({post.ip}) |{' '}
-                    {isSameDate(new Date(post.createdAt), new Date())
-                      ? moment(post.createdAt).format('HH:mm')
-                      : moment(post.createdAt).format('YYYY-MM-DD')}{' '}
-                    | 조회: {post.view} | 추천: {post.like}
-                  </Grid>
+            posts.map(post => (
+              <Grid
+                container
+                key={post.postId}
+                sx={{
+                  textAlign: 'center',
+                  fontSize: '0.65rem',
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                  borderBottom: '1px solid #e0e0e0',
+                  p: 1,
+                  cursor: 'pointer',
+                }}
+              >
+                <Grid item xs={12} sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
+                  {post.title}
+                  <span style={{ color: '#000999', fontSize: '10px', fontWeight: 700 }}>
+                    [{post.commentCount}]
+                  </span>
                 </Grid>
-              ),
-            )
+                <Grid item xs={12} sx={{ textAlign: 'left' }}>
+                  {post.author}({post.ip}) |{' '}
+                  {isSameDate(new Date(post.createdAt), new Date())
+                    ? moment(post.createdAt).format('HH:mm')
+                    : moment(post.createdAt).format('YYYY-MM-DD')}{' '}
+                  | 조회: {post.view} | 추천: {post.like}
+                </Grid>
+              </Grid>
+            ))
           ) : (
             <>
               <Grid
@@ -133,51 +132,46 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   추천
                 </Grid>
               </Grid>
-              {posts.map(
-                (
-                  //TODO: post: Post
-                  post: any,
-                ) => (
-                  <Grid
-                    container
-                    key={post.postId}
-                    sx={{
-                      textAlign: 'center',
-                      fontSize: '0.75rem',
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
-                      borderBottom: '1px solid #e0e0e0',
-                      p: 1,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <Grid item xs={0.75}>
-                      {post.categoryId}
-                    </Grid>
-                    <Grid item xs={6} sx={{ textAlign: 'left' }}>
-                      {post.title}
-                      <span style={{ color: '#000999', fontSize: '10px', fontWeight: 700 }}>
-                        [{post.commentCount}]
-                      </span>
-                    </Grid>
-                    <Grid item xs={2} sx={{ textAlign: 'left' }}>
-                      {post.author}({post.ip})
-                    </Grid>
-                    <Grid item xs={1.75}>
-                      {isSameDate(new Date(post.createdAt), new Date())
-                        ? moment(post.createdAt).format('HH:mm')
-                        : moment(post.createdAt).format('YYYY-MM-DD')}
-                    </Grid>
-                    <Grid item xs={0.75}>
-                      {post.view}
-                    </Grid>
-                    <Grid item xs={0.75}>
-                      {post.like}
-                    </Grid>
+              {posts.map((post: any) => (
+                <Grid
+                  container
+                  key={post.postId}
+                  sx={{
+                    textAlign: 'center',
+                    fontSize: '0.75rem',
+                    '&:hover': {
+                      backgroundColor: '#f5f5f5',
+                    },
+                    borderBottom: '1px solid #e0e0e0',
+                    p: 1,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Grid item xs={0.75}>
+                    {post.categoryId}
                   </Grid>
-                ),
-              )}
+                  <Grid item xs={6} sx={{ textAlign: 'left' }}>
+                    {post.title}
+                    <span style={{ color: '#000999', fontSize: '10px', fontWeight: 700 }}>
+                      [{post.commentCount}]
+                    </span>
+                  </Grid>
+                  <Grid item xs={2} sx={{ textAlign: 'left' }}>
+                    {post.author}({post.ip})
+                  </Grid>
+                  <Grid item xs={1.75}>
+                    {isSameDate(new Date(post.createdAt), new Date())
+                      ? moment(post.createdAt).format('HH:mm')
+                      : moment(post.createdAt).format('YYYY-MM-DD')}
+                  </Grid>
+                  <Grid item xs={0.75}>
+                    {post.view}
+                  </Grid>
+                  <Grid item xs={0.75}>
+                    {post.like}
+                  </Grid>
+                </Grid>
+              ))}
             </>
           )}
           <Box sx={{ fontSize: '0.725rem', textAlign: 'right', pt: 1, pr: 1 }}>
