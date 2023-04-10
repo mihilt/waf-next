@@ -1,15 +1,20 @@
-import Head from 'next/head';
-import { Inter } from 'next/font/google';
-import Layout from '../layout';
 import { Box } from '@mui/material';
+import Router from 'next/router';
 import Page from '../components/page';
+import Layout from '../layout';
 
 export default function Home() {
   return (
     <Page>
       <Layout>
         <main>
-          <Box>main page</Box>
+          <Box
+            onClick={() => {
+              Router.push('/category/life');
+            }}
+          >
+            life
+          </Box>
         </main>
       </Layout>
     </Page>
