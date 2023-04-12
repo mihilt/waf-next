@@ -20,6 +20,14 @@ export interface postPostApiProps {
   password: string;
 }
 
+export interface postCommentApiProps {
+  postId: string;
+  author: string;
+  contents: string;
+  password: string;
+  parentComment?: string;
+}
+
 export const getPostsApi = (data: getPostsApiProps) => {
   return requestApi.get('post', { params: data });
 };
@@ -30,4 +38,8 @@ export const getPostApi = (data: getPostApiProps) => {
 
 export const postPostApi = (data: postPostApiProps) => {
   return requestApi.post('post', data);
+};
+
+export const postCommentApi = (data: postCommentApiProps) => {
+  return requestApi.post('comment', data);
 };

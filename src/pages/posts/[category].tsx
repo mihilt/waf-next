@@ -136,7 +136,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   제목
                 </Grid>
                 <Grid item xs={2}>
-                  글쓴이
+                  작성자
                 </Grid>
                 <Grid item xs={1.75} sx={{ textAlign: 'center' }}>
                   작성일

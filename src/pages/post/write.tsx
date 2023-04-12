@@ -29,19 +29,19 @@ export default function Writing({}: Props): JSX.Element {
     const password = passwordRef.current.value;
 
     if (!author) {
-      alert('작성자를 입력하세요.');
+      alert('작성자를 입력해주세요.');
       authorRef.current.focus();
       return;
     }
 
     if (!password) {
-      alert('비밀번호를 입력하세요.');
+      alert('비밀번호를 입력해주세요.');
       passwordRef.current.focus();
       return;
     }
 
     if (!title) {
-      alert('제목을 입력하세요.');
+      alert('제목을 입력해주세요.');
       titleRef.current.focus();
       return;
     }
