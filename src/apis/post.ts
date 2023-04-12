@@ -1,7 +1,7 @@
 import requestApi from '../lib/api';
 
 export interface getPostsApiProps {
-  page?: number;
+  page?: string;
   limit?: number;
   category?: string;
   like?: number;

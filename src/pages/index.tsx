@@ -10,7 +10,7 @@ export default function Home() {
         <main>
           <Box
             onClick={() => {
-              Router.push('/category/life');
+              Router.push('/posts/life');
             }}
           >
             life

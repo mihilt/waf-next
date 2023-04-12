@@ -9,7 +9,7 @@ export default function Page({ children }: Props): JSX.Element {
     <>
       <Head>
         <title>WAF</title>
-        <meta name="description" content="Wonsik And Friends" />
+        <meta name="description" content="We Are Friends" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

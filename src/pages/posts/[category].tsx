@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Divider,
   FormControl,
   Grid,
@@ -8,22 +9,24 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
+  Pagination,
   Select,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
 
+import CreateIcon from '@mui/icons-material/Create';
 import SearchIcon from '@mui/icons-material/Search';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Router, { useRouter } from 'next/router';
+import qs from 'qs';
 import { useState } from 'react';
 import { getPostsApi } from '../../apis';
 import Page from '../../components/page';
 import Layout from '../../layout';
-import { isSameDate } from '../../utils';
 import { Posts } from '../../types';
-
+import { isSameDate } from '../../utils';
 interface Props {
   count: number;
   posts: Posts;
@@ -37,10 +40,13 @@ export default function Category({ count, posts }: Props): JSX.Element {
     category,
     'search-type': searchTypeQueryString,
     'search-value': searchValueQueryString,
+    page,
   } = router.query;
 
   const [searchType, setSearchType] = useState(
-    String(searchTypeQueryString)?.replace(' ', '+') || 'title+contents',
+    searchTypeQueryString === undefined
+      ? 'title+contents'
+      : String(searchTypeQueryString)?.replace(' ', '+'),
   );
   const [searchValue, setSearchValue] = useState(searchValueQueryString);
 
@@ -62,7 +68,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
             <Box
               sx={{ cursor: 'pointer', fontSize: '1.2rem', fontWeight: 700, color: '#000999' }}
               onClick={async () => {
-                Router.push(`/category/${category}`);
+                Router.push(`/posts/${category}`);
                 setSearchType('title+contents');
                 setSearchValue('');
               }}
@@ -89,7 +95,14 @@ export default function Category({ count, posts }: Props): JSX.Element {
               >
                 <Grid item xs={12} sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
                   {post.title}
-                  <span style={{ color: '#000999', fontSize: '10px', fontWeight: 700 }}>
+                  <span
+                    style={{
+                      color: '#000999',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      marginLeft: '0.1rem',
+                    }}
+                  >
                     [{post.commentCount}]
                   </span>
                 </Grid>
@@ -152,7 +165,14 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   </Grid>
                   <Grid item xs={6} sx={{ textAlign: 'left' }}>
                     {post.title}
-                    <span style={{ color: '#000999', fontSize: '10px', fontWeight: 700 }}>
+                    <span
+                      style={{
+                        color: '#000999',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        marginLeft: '0.1rem',
+                      }}
+                    >
                       [{post.commentCount}]
                     </span>
                   </Grid>
@@ -174,8 +194,41 @@ export default function Category({ count, posts }: Props): JSX.Element {
               ))}
             </>
           )}
-          <Box sx={{ fontSize: '0.725rem', textAlign: 'right', pt: 1, pr: 1 }}>
-            총: {count.toLocaleString()}개
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', m: isSmallerThanSm ? 1.5 : 2 }}
+          >
+            <Box sx={{ fontSize: '0.725rem' }}>총: {count.toLocaleString()}개</Box>
+            <Button
+              variant="contained"
+              startIcon={<CreateIcon />}
+              onClick={() => {
+                Router.push(`/post/write/${category}`);
+              }}
+            >
+              글쓰기
+            </Button>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+            <Pagination
+              count={(count / 20) % 1 === 0 ? count / 20 : Math.floor(count / 20) + 1}
+              page={page ? Number(page) : 1}
+              onChange={(e, value) => {
+                const currentPath = window.location.pathname;
+                const currentQuery = window.location.search;
+                const currentQueryObject = qs.parse(currentQuery, {
+                  ignoreQueryPrefix: true,
+                });
+                const nextQueryObject = {
+                  ...currentQueryObject,
+                  page: value,
+                };
+                const nextQuery = qs.stringify(nextQueryObject, {
+                  addQueryPrefix: true,
+                  encode: false,
+                });
+                Router.push(`${currentPath}${nextQuery}`);
+              }}
+            />
           </Box>
           <Box
             sx={{
@@ -243,10 +296,11 @@ export default function Category({ count, posts }: Props): JSX.Element {
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext,
 ) => {
-  const { category, 'search-type': searchType, 'search-value': searchValue } = context.query;
+  const { category, 'search-type': searchType, 'search-value': searchValue, page } = context.query;
 
   const param = {
     category: category as string,
+    page: page as string,
     ...(searchType &&
       searchValue && { searchType: searchType as string, searchValue: searchValue as string }),
   };
