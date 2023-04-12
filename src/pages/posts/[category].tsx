@@ -202,7 +202,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
               variant="contained"
               startIcon={<CreateIcon />}
               onClick={() => {
-                Router.push(`/post/write/${category}`);
+                Router.push(`/post/write?category=${category}`);
               }}
             >
               글쓰기
