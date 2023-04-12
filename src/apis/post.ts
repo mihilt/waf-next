@@ -7,6 +7,11 @@ export interface getPostsApiProps {
   like?: number;
 }
 
+export interface getPostApiProps {
+  category: string;
+  categoryId: string;
+}
+
 export interface postPostApiProps {
   category: string;
   title: string;
@@ -17,6 +22,10 @@ export interface postPostApiProps {
 
 export const getPostsApi = (data: getPostsApiProps) => {
   return requestApi.get('post', { params: data });
+};
+
+export const getPostApi = (data: getPostApiProps) => {
+  return requestApi.get(`post/${data.category}/${data.categoryId}`);
 };
 
 export const postPostApi = (data: postPostApiProps) => {

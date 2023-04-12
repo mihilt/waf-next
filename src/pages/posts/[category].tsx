@@ -73,14 +73,13 @@ export default function Category({ count, posts }: Props): JSX.Element {
                 setSearchValue('');
               }}
             >
-              {category} 채널
+              {category}
             </Box>
           </Box>
           <Divider />
           {isSmallerThanSm ? (
             posts.map(post => (
-              <Grid
-                container
+              <Box
                 key={post.postId}
                 sx={{
                   textAlign: 'center',
@@ -89,11 +88,14 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     backgroundColor: '#f5f5f5',
                   },
                   borderBottom: '1px solid #e0e0e0',
-                  p: 1,
+                  p: 0.75,
                   cursor: 'pointer',
                 }}
+                onClick={() => {
+                  Router.push(`/post/${category}/${post.categoryId}`);
+                }}
               >
-                <Grid item xs={12} sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
+                <Box sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
                   {post.title}
                   <span
                     style={{
@@ -105,15 +107,16 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   >
                     [{post.commentCount}]
                   </span>
-                </Grid>
-                <Grid item xs={12} sx={{ textAlign: 'left' }}>
+                </Box>
+                <Box sx={{ mt: 0.25 }} />
+                <Box sx={{ textAlign: 'left' }}>
                   {post.author}({post.ip}) |{' '}
                   {isSameDate(new Date(post.createdAt), new Date())
                     ? moment(post.createdAt).format('HH:mm')
                     : moment(post.createdAt).format('YYYY-MM-DD')}{' '}
                   | 조회: {post.view} | 추천: {post.like}
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             ))
           ) : (
             <>
@@ -158,6 +161,9 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     borderBottom: '1px solid #e0e0e0',
                     p: 1,
                     cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    Router.push(`/post/${category}/${post.categoryId}`);
                   }}
                 >
                   <Grid item xs={0.75}>

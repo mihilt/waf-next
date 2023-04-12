@@ -1,6 +1,6 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import { useRef } from 'react';
 import { postPostApi } from '../../apis';
 import Page from '../../components/page';
@@ -61,7 +61,7 @@ export default function Writing({}: Props): JSX.Element {
     }
 
     if (res.status === 201) {
-      // Router.push(게시글);
+      Router.push(`/post/${category}/${res.data.categoryId}`);
     }
   };
 
@@ -99,7 +99,7 @@ export default function Writing({}: Props): JSX.Element {
               </Box>
               <Box sx={{ mt: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Button variant="contained" color={'inherit'}>
+                <Button variant="contained" color="gray">
                   이전
                 </Button>
                 <Button variant="contained" onClick={handleWrite}>
