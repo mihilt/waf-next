@@ -6,7 +6,8 @@ import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import { deleteCommentApi, getPostApi, postCommentApi } from '../../../apis';
+import { deleteCommentApi, deletePostApi, getPostApi, postCommentApi } from '../../../apis';
+import CategoryHeader from '../../../components/categoryHeader';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
 import { Comment, Comments } from '../../../types';
@@ -39,6 +40,7 @@ interface DeleteEditModalProps {
   setOpenModal: (openModal: boolean) => void;
   modalApi: any;
   modalDataForApi: any;
+  modalApiSuccessedFunc: any;
 }
 
 const DeleteEditModal = ({
@@ -46,6 +48,7 @@ const DeleteEditModal = ({
   setOpenModal,
   modalApi,
   modalDataForApi,
+  modalApiSuccessedFunc,
 }: DeleteEditModalProps) => {
   const passwordRef = useRef<any>(null);
 
@@ -96,7 +99,7 @@ const DeleteEditModal = ({
                 passwordRef.current.focus();
                 return;
               }
-              location.reload();
+              modalApiSuccessedFunc();
             }}
           >
             확인
@@ -123,6 +126,7 @@ export default function CategoryId({
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [modalApi, setModalApi] = useState<any>();
   const [modalDataForApi, setModalDataForApi] = useState<any>();
+  const [modalApiSuccessedFunc, setModalApiSuccessedFunc] = useState<any>();
 
   const router = useRouter();
 
@@ -294,6 +298,9 @@ export default function CategoryId({
                   setOpenModal(true);
                   setModalApi(() => deleteCommentApi);
                   setModalDataForApi({ postId, commentId: comment.commentId });
+                  setModalApiSuccessedFunc(() => () => {
+                    location.reload();
+                  });
                 }}
               >
                 삭제
@@ -324,11 +331,13 @@ export default function CategoryId({
     <Page>
       <Layout>
         <main>
+          <CategoryHeader category={category as string} />
           <DeleteEditModal
             openModal={openModal}
             setOpenModal={setOpenModal}
             modalApi={modalApi}
             modalDataForApi={modalDataForApi}
+            modalApiSuccessedFunc={modalApiSuccessedFunc}
           />
           <Box sx={{ p: 2 }}>
             <Box sx={{ pl: 1, py: 1, background: '#EFEFEF' }}>{title}</Box>
@@ -383,7 +392,17 @@ export default function CategoryId({
                   수정
                 </Button>
                 <Box sx={{ ml: 0.5 }} />
-                <Button variant="contained" onClick={() => {}}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setOpenModal(true);
+                    setModalApi(() => deletePostApi);
+                    setModalDataForApi({ postId });
+                    setModalApiSuccessedFunc(() => () => {
+                      router.push(`/posts/${category}`);
+                    });
+                  }}
+                >
                   삭제
                 </Button>
               </Box>
@@ -430,7 +449,18 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 ) => {
   const { category, categoryId } = context.query;
 
-  const res = await getPostApi({ category: category as string, categoryId: categoryId as string });
+  let res;
+  try {
+    res = await getPostApi({ category: category as string, categoryId: categoryId as string });
+  } catch (e) {
+    return {
+      /* redirect: {
+        destination: `/posts/${category}`,
+        permanent: false,
+      }, */
+      notFound: true,
+    };
+  }
 
   return {
     props: res.data,

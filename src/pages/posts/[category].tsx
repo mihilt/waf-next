@@ -19,14 +19,15 @@ import CreateIcon from '@mui/icons-material/Create';
 import SearchIcon from '@mui/icons-material/Search';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import Router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import qs from 'qs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getPostsApi } from '../../apis';
 import Page from '../../components/page';
 import Layout from '../../layout';
 import { Posts } from '../../types';
 import { isSameDate } from '../../utils';
+import CategoryHeader from '../../components/categoryHeader';
 interface Props {
   count: number;
   posts: Posts;
@@ -36,24 +37,24 @@ export default function Category({ count, posts }: Props): JSX.Element {
   const router = useRouter();
   const theme = useTheme();
 
-  const {
-    category,
-    'search-type': searchTypeQueryString,
-    'search-value': searchValueQueryString,
-    page,
-  } = router.query;
+  const { category, page } = router.query;
 
-  const [searchType, setSearchType] = useState(
-    searchTypeQueryString === undefined
-      ? 'title+contents'
-      : String(searchTypeQueryString)?.replace(' ', '+'),
-  );
-  const [searchValue, setSearchValue] = useState(searchValueQueryString);
+  const [searchType, setSearchType] = useState('title+contents');
+
+  const [searchValue, setSearchValue] = useState('');
 
   const isSmallerThanSm = useMediaQuery(theme.breakpoints.down('sm'));
 
+  useEffect(() => {
+    const { 'search-type': searchType, 'search-value': searchValue } = router.query;
+    setSearchType(
+      searchType === undefined ? 'title+contents' : String(searchType)?.replace(' ', '+'),
+    );
+    setSearchValue(searchValue === undefined ? '' : String(searchValue));
+  }, [router.query]);
+
   const handleSearch = () => {
-    Router.push(
+    router.push(
       searchType && searchValue
         ? `${category}?search-type=${searchType}&search-value=${searchValue}`
         : `${category}`,
@@ -64,19 +65,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
     <Page>
       <Layout>
         <main>
-          <Box sx={{ display: 'flex', p: 1 }}>
-            <Box
-              sx={{ cursor: 'pointer', fontSize: '1.2rem', fontWeight: 700, color: '#000999' }}
-              onClick={async () => {
-                Router.push(`/posts/${category}`);
-                setSearchType('title+contents');
-                setSearchValue('');
-              }}
-            >
-              {category}
-            </Box>
-          </Box>
-          <Divider />
+          <CategoryHeader category={category as string} />
           {isSmallerThanSm ? (
             posts.map(post => (
               <Box
@@ -92,7 +81,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   cursor: 'pointer',
                 }}
                 onClick={() => {
-                  Router.push(`/post/${category}/${post.categoryId}`);
+                  router.push(`/post/${category}/${post.categoryId}`);
                 }}
               >
                 <Box sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
@@ -163,7 +152,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     cursor: 'pointer',
                   }}
                   onClick={() => {
-                    Router.push(`/post/${category}/${post.categoryId}`);
+                    router.push(`/post/${category}/${post.categoryId}`);
                   }}
                 >
                   <Grid item xs={0.75}>
@@ -208,7 +197,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
               variant="contained"
               startIcon={<CreateIcon />}
               onClick={() => {
-                Router.push(`/post/write?category=${category}`);
+                router.push(`/post/write?category=${category}`);
               }}
             >
               글쓰기
@@ -232,7 +221,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   addQueryPrefix: true,
                   encode: false,
                 });
-                Router.push(`${currentPath}${nextQuery}`);
+                router.push(`${currentPath}${nextQuery}`);
               }}
             />
           </Box>

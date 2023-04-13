@@ -46,6 +46,10 @@ export const postPostApi = (data: PostPostApiProps) => {
   return requestApi.post('post', data);
 };
 
+export const deletePostApi = (data: GetPostApiProps) => {
+  return requestApi.delete('post', { params: data });
+};
+
 export const postCommentApi = (data: PostCommentApiProps) => {
   return requestApi.post('comment', data);
 };
