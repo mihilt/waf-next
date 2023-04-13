@@ -4,7 +4,7 @@ import { Box, Button, Divider, IconButton, TextField } from '@mui/material';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { getPostApi, postCommentApi } from '../../../apis';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
@@ -26,40 +26,13 @@ interface Props {
 
 interface CommentSectionProps {
   comment: Comment;
+  parentCommentId?: string;
 }
 
-const CommentSection = ({ comment }: CommentSectionProps) => (
-  <Box sx={{ width: '100%' }}>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
-      <Box>
-        {comment.author}({comment.ip})
-      </Box>
-      <Box>추천: {comment.like}</Box>
-    </Box>
-    <Box sx={{ mt: 0.5 }} />
-    <Box sx={{ fontSize: '0.8rem' }}>{comment.contents}</Box>
-    <Box sx={{ mt: 0.5 }} />
-    <Box sx={{ fontSize: '0.7rem' }}>
-      {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')} |{' '}
-      <ThumbUpIcon
-        sx={{
-          fontSize: '0.9rem',
-          verticalAlign: 'text-bottom',
-          cursor: 'pointer',
-          color: '#000999',
-        }}
-      />{' '}
-      <ThumbDownIcon
-        sx={{
-          fontSize: '0.9rem',
-          verticalAlign: 'text-bottom',
-          cursor: 'pointer',
-          color: '#909090',
-        }}
-      />
-    </Box>
-  </Box>
-);
+interface CommentInputSectionProps {
+  parentCommentId?: string;
+}
+
 export default function CategoryId({
   author,
   category,
@@ -75,9 +48,159 @@ export default function CategoryId({
 }: Props): JSX.Element {
   const router = useRouter();
 
-  const commentAuthorRef = useRef<any>(null);
-  const commentPasswordRef = useRef<any>(null);
-  const commentContentsRef = useRef<any>(null);
+  const CommentInputSection = ({ parentCommentId }: CommentInputSectionProps) => {
+    const commentAuthorRef = useRef<any>(null);
+    const commentPasswordRef = useRef<any>(null);
+    const commentContentsRef = useRef<any>(null);
+
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <TextField
+            label="작성자"
+            sx={{ width: '100%' }}
+            inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
+            InputLabelProps={{ style: { fontSize: '0.7rem' } }}
+            inputRef={commentAuthorRef}
+          />
+          <TextField
+            label="비밀번호"
+            type="password"
+            sx={{ width: '100%' }}
+            inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
+            InputLabelProps={{ style: { fontSize: '0.7rem' } }}
+            inputRef={commentPasswordRef}
+          />
+        </Box>
+        <Box sx={{ ml: 1 }} />
+        <TextField
+          sx={{ width: '100%' }}
+          multiline
+          rows={3}
+          placeholder={'덧글을 입력해주세요.'}
+          inputProps={{ style: { fontSize: '0.7rem' } }}
+          inputRef={commentContentsRef}
+        />
+        <Box sx={{ ml: 1 }} />
+        <Button
+          variant="contained"
+          onClick={async () => {
+            const author = commentAuthorRef.current.value;
+            const password = commentPasswordRef.current.value;
+            const contents = commentContentsRef.current.value;
+
+            if (!author) {
+              alert('작성자를 입력해주세요.');
+              commentAuthorRef.current.focus();
+              return;
+            }
+
+            if (!password) {
+              alert('비밀번호를 입력해주세요.');
+              commentPasswordRef.current.focus();
+              return;
+            }
+
+            if (!contents) {
+              alert('내용을 입력해주세요.');
+              commentContentsRef.current.focus();
+              return;
+            }
+
+            await postCommentApi({
+              postId,
+              author,
+              password,
+              contents,
+              parentComment: parentCommentId,
+            });
+
+            location.reload();
+          }}
+        >
+          등록
+        </Button>
+      </Box>
+    );
+  };
+
+  const CommentSection = ({ comment, parentCommentId }: CommentSectionProps) => {
+    const [isOpenReply, setIsOpenReply] = useState(false);
+
+    return (
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
+          <Box>
+            {comment.author}({comment.ip})
+          </Box>
+          <Box>추천: {comment.like}</Box>
+        </Box>
+        <Box sx={{ mt: 0.5 }} />
+        <Box sx={{ fontSize: '0.8rem' }}>{comment.contents}</Box>
+        <Box sx={{ mt: 0.5 }} />
+        <Box sx={{ fontSize: '0.7rem' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box>
+              {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')} |{' '}
+              <ThumbUpIcon
+                sx={{
+                  fontSize: '0.9rem',
+                  verticalAlign: 'text-bottom',
+                  cursor: 'pointer',
+                  color: '#000999',
+                }}
+              />{' '}
+              <ThumbDownIcon
+                sx={{
+                  fontSize: '0.9rem',
+                  verticalAlign: 'text-bottom',
+                  cursor: 'pointer',
+                  color: '#909090',
+                }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex' }}>
+              {!parentCommentId && (
+                <>
+                  <Box
+                    sx={{ cursor: 'pointer', color: '#000666', fontWeight: 550 }}
+                    onClick={() => {
+                      // TODO: 다른 열려있는 답글 닫기
+                      setIsOpenReply(e => !e);
+                    }}
+                  >
+                    답글
+                  </Box>
+                  <Box sx={{ ml: 0.5 }} />
+                </>
+              )}
+              <Box
+                sx={{ cursor: 'pointer', color: '#000666', fontWeight: 550 }}
+                onClick={() => alert('delete')}
+              >
+                삭제
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        {!parentCommentId && isOpenReply && (
+          <>
+            <Box sx={{ mt: 1 }} />
+            <Divider />
+            <Box sx={{ mt: 1 }} />
+            <Box sx={{ display: 'flex' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
+                <Box>└</Box>
+              </Box>
+              <Box sx={{ width: '100%' }}>
+                <CommentInputSection parentCommentId={comment.commentId} />
+              </Box>
+            </Box>
+          </>
+        )}
+      </Box>
+    );
+  };
 
   return (
     <Page>
@@ -158,7 +281,10 @@ export default function CategoryId({
                         <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
                           <Box>└</Box>
                         </Box>
-                        <CommentSection comment={commentReply} />
+                        <CommentSection
+                          comment={commentReply}
+                          parentCommentId={comment.commentId}
+                        />
                       </Box>
                       <Box sx={{ mt: 1 }} />
                     </Box>
@@ -166,75 +292,8 @@ export default function CategoryId({
                 <Divider />
               </Box>
             ))}
-            <Box sx={{ mt: 2 }} />
-            <Box sx={{ display: 'flex' }}>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-              >
-                <TextField
-                  label="작성자"
-                  sx={{ width: '100%' }}
-                  inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
-                  InputLabelProps={{ style: { fontSize: '0.7rem' } }}
-                  inputRef={commentAuthorRef}
-                />
-                <TextField
-                  label="비밀번호"
-                  type="password"
-                  sx={{ width: '100%' }}
-                  inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
-                  InputLabelProps={{ style: { fontSize: '0.7rem' } }}
-                  inputRef={commentPasswordRef}
-                />
-              </Box>
-              <Box sx={{ ml: 1 }} />
-              <TextField
-                sx={{ width: '100%' }}
-                multiline
-                rows={3}
-                placeholder={'덧글을 입력해주세요.'}
-                inputProps={{ style: { fontSize: '0.7rem' } }}
-                inputRef={commentContentsRef}
-              />
-              <Box sx={{ ml: 1 }} />
-              <Button
-                variant="contained"
-                onClick={async () => {
-                  const author = commentAuthorRef.current.value;
-                  const password = commentPasswordRef.current.value;
-                  const contents = commentContentsRef.current.value;
-
-                  if (!author) {
-                    alert('작성자를 입력해주세요.');
-                    commentAuthorRef.current.focus();
-                    return;
-                  }
-
-                  if (!password) {
-                    alert('비밀번호를 입력해주세요.');
-                    commentPasswordRef.current.focus();
-                    return;
-                  }
-
-                  if (!contents) {
-                    alert('내용을 입력해주세요.');
-                    commentContentsRef.current.focus();
-                    return;
-                  }
-
-                  await postCommentApi({
-                    postId,
-                    author,
-                    password,
-                    contents,
-                  });
-
-                  location.reload();
-                }}
-              >
-                등록
-              </Button>
-            </Box>
+            <Box sx={{ mt: 1 }} />
+            <CommentInputSection />
           </Box>
         </main>
       </Layout>
