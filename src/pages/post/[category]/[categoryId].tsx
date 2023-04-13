@@ -1,11 +1,12 @@
+import CloseIcon from '@mui/icons-material/Close';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import { Box, Button, Divider, IconButton, TextField } from '@mui/material';
+import { Box, Button, Divider, IconButton, Modal, TextField } from '@mui/material';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import { getPostApi, postCommentApi } from '../../../apis';
+import { deleteCommentApi, getPostApi, postCommentApi } from '../../../apis';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
 import { Comment, Comments } from '../../../types';
@@ -33,6 +34,79 @@ interface CommentInputSectionProps {
   parentCommentId?: string;
 }
 
+interface DeleteEditModalProps {
+  openModal: boolean;
+  setOpenModal: (openModal: boolean) => void;
+  modalApi: any;
+  modalDataForApi: any;
+}
+
+const DeleteEditModal = ({
+  openModal,
+  setOpenModal,
+  modalApi,
+  modalDataForApi,
+}: DeleteEditModalProps) => {
+  const passwordRef = useRef<any>(null);
+
+  const handleClose = () => {
+    setOpenModal(false);
+  };
+
+  return (
+    <Modal open={openModal} onClose={handleClose}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          bgcolor: 'background.paper',
+          border: '1px solid #707070',
+          boxShadow: 24,
+          p: 4,
+          color: '#404040',
+        }}
+      >
+        <CloseIcon
+          sx={{ cursor: 'pointer', position: 'absolute', top: '15px', right: '15px' }}
+          onClick={handleClose}
+        />
+        <Box sx={{ textAlign: 'center', fontSize: '0.9rem', fontWeight: 500 }}>
+          비밀번호를 입력해주세요.
+        </Box>
+        <Box sx={{ mt: 3, width: '270px', display: 'flex', justifyContent: 'space-between' }}>
+          <TextField
+            label="비밀번호"
+            type="password"
+            autoComplete="current-password"
+            size="small"
+            inputRef={passwordRef}
+          />
+          <Button
+            variant="contained"
+            onClick={async () => {
+              try {
+                await modalApi({
+                  ...modalDataForApi,
+                  password: passwordRef.current.value,
+                });
+              } catch (e) {
+                alert('비밀번호가 일치하지 않습니다.');
+                passwordRef.current.focus();
+                return;
+              }
+              location.reload();
+            }}
+          >
+            확인
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+};
+
 export default function CategoryId({
   author,
   category,
@@ -46,6 +120,10 @@ export default function CategoryId({
   title,
   view,
 }: Props): JSX.Element {
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [modalApi, setModalApi] = useState<any>();
+  const [modalDataForApi, setModalDataForApi] = useState<any>();
+
   const router = useRouter();
 
   const CommentInputSection = ({ parentCommentId }: CommentInputSectionProps) => {
@@ -58,6 +136,7 @@ export default function CategoryId({
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <TextField
             label="작성자"
+            autoComplete="username"
             sx={{ width: '100%' }}
             inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
             InputLabelProps={{ style: { fontSize: '0.7rem' } }}
@@ -66,6 +145,7 @@ export default function CategoryId({
           <TextField
             label="비밀번호"
             type="password"
+            autoComplete="current-password"
             sx={{ width: '100%' }}
             inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
             InputLabelProps={{ style: { fontSize: '0.7rem' } }}
@@ -127,6 +207,40 @@ export default function CategoryId({
   const CommentSection = ({ comment, parentCommentId }: CommentSectionProps) => {
     const [isOpenReply, setIsOpenReply] = useState(false);
 
+    if (comment.deleted) {
+      return (
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
+            <Box sx={{ color: '#404040', fontSize: '0.8rem', fontWeight: 450 }}>
+              [삭제된 댓글입니다.]
+            </Box>
+            <Box>추천: {comment.like}</Box>
+          </Box>
+          <Box sx={{ mt: 0.5 }} />
+          <Box sx={{ fontSize: '0.7rem' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+            </Box>
+          </Box>
+          {!parentCommentId && isOpenReply && (
+            <>
+              <Box sx={{ mt: 1 }} />
+              <Divider />
+              <Box sx={{ mt: 1 }} />
+              <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
+                  <Box>└</Box>
+                </Box>
+                <Box sx={{ width: '100%' }}>
+                  <CommentInputSection parentCommentId={comment.commentId} />
+                </Box>
+              </Box>
+            </>
+          )}
+        </Box>
+      );
+    }
+
     return (
       <Box sx={{ width: '100%' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
@@ -176,7 +290,11 @@ export default function CategoryId({
               )}
               <Box
                 sx={{ cursor: 'pointer', color: '#000666', fontWeight: 550 }}
-                onClick={() => alert('delete')}
+                onClick={() => {
+                  setOpenModal(true);
+                  setModalApi(() => deleteCommentApi);
+                  setModalDataForApi({ postId, commentId: comment.commentId });
+                }}
               >
                 삭제
               </Box>
@@ -206,6 +324,12 @@ export default function CategoryId({
     <Page>
       <Layout>
         <main>
+          <DeleteEditModal
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+            modalApi={modalApi}
+            modalDataForApi={modalDataForApi}
+          />
           <Box sx={{ p: 2 }}>
             <Box sx={{ pl: 1, py: 1, background: '#EFEFEF' }}>{title}</Box>
             <Box sx={{ mt: 1 }} />

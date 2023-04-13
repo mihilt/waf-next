@@ -1,18 +1,18 @@
 import requestApi from '../lib/api';
 
-export interface getPostsApiProps {
+export interface GetPostsApiProps {
   page?: string;
   limit?: number;
   category?: string;
   like?: number;
 }
 
-export interface getPostApiProps {
+export interface GetPostApiProps {
   category: string;
   categoryId: string;
 }
 
-export interface postPostApiProps {
+export interface PostPostApiProps {
   category: string;
   title: string;
   contents: string;
@@ -20,7 +20,7 @@ export interface postPostApiProps {
   password: string;
 }
 
-export interface postCommentApiProps {
+export interface PostCommentApiProps {
   postId: string;
   author: string;
   contents: string;
@@ -28,18 +28,28 @@ export interface postCommentApiProps {
   parentComment?: string;
 }
 
-export const getPostsApi = (data: getPostsApiProps) => {
+export interface DeleteCommentApiProps {
+  postId: string;
+  commentId: string;
+  password: string;
+}
+
+export const getPostsApi = (data: GetPostsApiProps) => {
   return requestApi.get('post', { params: data });
 };
 
-export const getPostApi = (data: getPostApiProps) => {
+export const getPostApi = (data: GetPostApiProps) => {
   return requestApi.get(`post/${data.category}/${data.categoryId}`);
 };
 
-export const postPostApi = (data: postPostApiProps) => {
+export const postPostApi = (data: PostPostApiProps) => {
   return requestApi.post('post', data);
 };
 
-export const postCommentApi = (data: postCommentApiProps) => {
+export const postCommentApi = (data: PostCommentApiProps) => {
   return requestApi.post('comment', data);
+};
+
+export const deleteCommentApi = (data: DeleteCommentApiProps) => {
+  return requestApi.delete('comment', { params: data });
 };

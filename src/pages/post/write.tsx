@@ -81,14 +81,21 @@ export default function Writing({}: Props): JSX.Element {
               </FormControl>
               <Box sx={{ mt: 1.5 }} />
               <Box sx={{ display: 'flex' }}>
-                <TextField fullWidth label="작성자" variant="outlined" inputRef={authorRef} />
+                <TextField
+                  label="작성자"
+                  autoComplete="username"
+                  variant="outlined"
+                  inputRef={authorRef}
+                  fullWidth
+                />
                 <Box sx={{ ml: 1 }} />
                 <TextField
-                  fullWidth
                   label="비밀번호"
+                  type="password"
+                  autoComplete="current-password"
                   variant="outlined"
-                  type={'password'}
                   inputRef={passwordRef}
+                  fullWidth
                 />
               </Box>
               <Box sx={{ mt: 1.5 }} />

@@ -19,6 +19,7 @@ export interface Comment {
   author: string;
   contents: string;
   like: number;
+  deleted: boolean;
   createdAt: string;
   comments?: Comments;
 }
