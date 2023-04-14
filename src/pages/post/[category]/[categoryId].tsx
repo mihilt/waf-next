@@ -7,6 +7,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 import {
+  checkPasswordPostApi,
   deleteCommentApi,
   deletePostApi,
   dislikeCommentApi,
@@ -19,7 +20,7 @@ import {
 import CategoryHeader from '../../../components/categoryHeader';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
-import { Comment, Comments } from '../../../types';
+import { Comment, Comments, Post } from '../../../types';
 
 interface Props {
   author: string;
@@ -98,17 +99,21 @@ const DeleteEditModal = ({
           <Button
             variant="contained"
             onClick={async () => {
+              const password = passwordRef.current.value;
+
+              let res;
               try {
-                await modalApi({
+                res = await modalApi({
                   ...modalDataForApi,
-                  password: passwordRef.current.value,
+                  password,
                 });
               } catch (e) {
                 alert('비밀번호가 일치하지 않습니다.');
                 passwordRef.current.focus();
                 return;
               }
-              modalApiSuccessedFunc();
+
+              modalApiSuccessedFunc(res.data);
             }}
           >
             확인
@@ -427,7 +432,20 @@ export default function CategoryId({
                 </Button>
               </Box>
               <Box sx={{ display: 'flex' }}>
-                <Button variant="contained" onClick={() => {}}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setOpenModal(true);
+                    setModalApi(() => checkPasswordPostApi);
+                    setModalDataForApi({ postId });
+                    setModalApiSuccessedFunc(() => (post: Post) => {
+                      router.push({
+                        pathname: '/post/edit',
+                        query: { postId: post.postId, password: post.password },
+                      });
+                    });
+                  }}
+                >
                   수정
                 </Button>
                 <Box sx={{ ml: 0.5 }} />

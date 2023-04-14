@@ -28,6 +28,20 @@ export interface DislikePostApiProps {
   postId: string;
 }
 
+export interface CheckPasswordPostApiProps {
+  postId: string;
+  password: string;
+}
+
+export interface PatchPostApiProps {
+  postId: string;
+  author: string;
+  title: string;
+  contents: string;
+  password: string;
+  newPassword: string;
+}
+
 export interface PostCommentApiProps {
   postId: string;
   author: string;
@@ -52,6 +66,7 @@ export interface DislikeCommentApiProps {
   commentId: string;
 }
 
+// Post
 export const getPostsApi = (data: GetPostsApiProps) => {
   return requestApi.get('post', { params: data });
 };
@@ -76,6 +91,15 @@ export const dislikePostApi = (data: DislikePostApiProps) => {
   return requestApi.post('post/dislike', data);
 };
 
+export const checkPasswordPostApi = (data: CheckPasswordPostApiProps) => {
+  return requestApi.post('post/check-password', data);
+};
+
+export const patchPostApi = (data: PatchPostApiProps) => {
+  return requestApi.patch(`post/${data.postId}`, data);
+};
+
+// Comment
 export const postCommentApi = (data: PostCommentApiProps) => {
   return requestApi.post('comment', data);
 };

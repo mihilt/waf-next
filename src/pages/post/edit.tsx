@@ -1,33 +1,67 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
-import { postPostApi } from '../../apis';
+import { useEffect, useRef, useState } from 'react';
+import { checkPasswordPostApi, patchPostApi, postPostApi } from '../../apis';
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 
 import Layout from '../../layout';
-
 interface Props {}
 
-export default function Writing({}: Props): JSX.Element {
+export default function Edit({}: Props): JSX.Element {
   const router = useRouter();
-  const { category } = router.query;
+
+  const [category, setCategory] = useState('');
+  const [beforePassword, setBeforePassword] = useState('');
+  const [postId, setPostId] = useState('');
 
   const authorRef = useRef<any>(null);
-  const passwordRef = useRef<any>(null);
+  const newPasswordRef = useRef<any>(null);
   const titleRef = useRef<any>(null);
   const contentsRef = useRef<any>(null);
 
   const Editor = dynamic(() => import('../../components/toast-ui-editor'), { ssr: false });
 
-  const handleWrite = async () => {
+  useEffect(() => {
+    (async () => {
+      const { postId, password: beforePassword } = router.query;
+
+      try {
+        const res = await checkPasswordPostApi({
+          postId: postId as string,
+          password: beforePassword as string,
+        });
+
+        const { category, author, title, contents, password } = res.data;
+
+        setCategory(category);
+        setBeforePassword(password);
+        setPostId(postId as string);
+
+        // TODO: URL 패스워드 제거 + 이는 글쓰기에서도 필요, beforePassword, newPassword 좀 더 명확하게 정리 필요
+
+        setTimeout(() => {
+          authorRef.current.value = author;
+          titleRef.current.value = title;
+          contentsRef.current.querySelector('.ProseMirror.toastui-editor-contents').innerHTML =
+            contents;
+        }, 500);
+      } catch (e) {
+        router.push('/');
+      }
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleEdit = async () => {
     const title = titleRef.current.value;
     const contents = contentsRef.current.querySelector(
       '.ProseMirror.toastui-editor-contents',
     ).innerHTML;
     const author = authorRef.current.value;
-    const password = passwordRef.current.value;
+    const newPassword = newPasswordRef.current.value;
 
     if (!author) {
       alert('작성자를 입력해주세요.');
@@ -35,9 +69,9 @@ export default function Writing({}: Props): JSX.Element {
       return;
     }
 
-    if (!password) {
+    if (!newPassword) {
       alert('비밀번호를 입력해주세요.');
-      passwordRef.current.focus();
+      newPasswordRef.current.focus();
       return;
     }
 
@@ -54,14 +88,21 @@ export default function Writing({}: Props): JSX.Element {
 
     let res;
     try {
-      res = await postPostApi({ title, contents, category: category as string, author, password });
+      res = await patchPostApi({
+        postId,
+        title,
+        contents,
+        author,
+        newPassword,
+        password: beforePassword,
+      });
     } catch (e) {
       console.log(`ERROR: ${e}`);
-      alert('글 작성에 실패했습니다.');
+      alert('글 수정에 실패했습니다.');
       return;
     }
 
-    if (res.status === 201) {
+    if (res.status === 200) {
       router.push(`/post/${category}/${res.data.categoryId}`);
     }
   };
@@ -96,7 +137,7 @@ export default function Writing({}: Props): JSX.Element {
                   type="password"
                   autoComplete="current-password"
                   variant="outlined"
-                  inputRef={passwordRef}
+                  inputRef={newPasswordRef}
                   fullWidth
                 />
               </Box>
@@ -117,8 +158,8 @@ export default function Writing({}: Props): JSX.Element {
                 >
                   이전
                 </Button>
-                <Button variant="contained" onClick={handleWrite}>
-                  작성
+                <Button variant="contained" onClick={handleEdit}>
+                  수정
                 </Button>
               </Box>
             </Box>

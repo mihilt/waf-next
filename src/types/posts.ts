@@ -11,6 +11,7 @@ export interface Post {
   createdAt: string;
   view: number;
   like: number;
+  password?: string;
 }
 
 export interface Comment {

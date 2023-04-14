@@ -46,6 +46,8 @@ export default function Category({ count, posts }: Props): JSX.Element {
   const isSmallerThanSm = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
+    // TODO: Router.push 함수의 설정을 통해서도 기존 state 초기화가 가능할 것 같은데 확인해보기
+
     const { 'search-type': searchType, 'search-value': searchValue } = router.query;
     setSearchType(
       searchType === undefined ? 'title+contents' : String(searchType)?.replace(' ', '+'),
