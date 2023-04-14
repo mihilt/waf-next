@@ -6,7 +6,16 @@ import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import { deleteCommentApi, deletePostApi, getPostApi, postCommentApi } from '../../../apis';
+import {
+  deleteCommentApi,
+  deletePostApi,
+  dislikeCommentApi,
+  dislikePostApi,
+  getPostApi,
+  likeCommentApi,
+  likePostApi,
+  postCommentApi,
+} from '../../../apis';
 import CategoryHeader from '../../../components/categoryHeader';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
@@ -161,7 +170,7 @@ export default function CategoryId({
           sx={{ width: '100%' }}
           multiline
           rows={3}
-          placeholder={'덧글을 입력해주세요.'}
+          placeholder={'댓글을 입력해주세요.'}
           inputProps={{ style: { fontSize: '0.7rem' } }}
           inputRef={commentContentsRef}
         />
@@ -267,6 +276,13 @@ export default function CategoryId({
                   cursor: 'pointer',
                   color: '#000999',
                 }}
+                onClick={async () => {
+                  await likeCommentApi({
+                    postId,
+                    commentId: comment.commentId,
+                  });
+                  location.reload();
+                }}
               />{' '}
               <ThumbDownIcon
                 sx={{
@@ -274,6 +290,13 @@ export default function CategoryId({
                   verticalAlign: 'text-bottom',
                   cursor: 'pointer',
                   color: '#909090',
+                }}
+                onClick={async () => {
+                  await dislikeCommentApi({
+                    postId,
+                    commentId: comment.commentId,
+                  });
+                  location.reload();
                 }}
               />
             </Box>
@@ -354,7 +377,7 @@ export default function CategoryId({
                 {author}({ip}) | {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
               </Box>
               <Box>
-                추천: {like} | 조회수: {view}
+                조회수: {view} | 추천: {like}
               </Box>
             </Box>
             <Box sx={{ mt: 1 }} />
@@ -365,10 +388,26 @@ export default function CategoryId({
             <Box sx={{ mt: 5 }} />
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box sx={{ display: 'flex' }}>
-                <IconButton size="large">
+                <IconButton
+                  size="large"
+                  onClick={async () => {
+                    await likePostApi({
+                      postId,
+                    });
+                    location.reload();
+                  }}
+                >
                   <ThumbUpIcon fontSize="inherit" sx={{ color: '#000999' }} />
                 </IconButton>
-                <IconButton size="large">
+                <IconButton
+                  size="large"
+                  onClick={async () => {
+                    await dislikePostApi({
+                      postId,
+                    });
+                    location.reload();
+                  }}
+                >
                   <ThumbDownIcon fontSize="inherit" />
                 </IconButton>
               </Box>
@@ -381,10 +420,10 @@ export default function CategoryId({
                 <Button
                   variant="contained"
                   onClick={() => {
-                    router.back();
+                    router.push(`/posts/${category}`);
                   }}
                 >
-                  이전
+                  목록
                 </Button>
               </Box>
               <Box sx={{ display: 'flex' }}>

@@ -20,6 +20,14 @@ export interface PostPostApiProps {
   password: string;
 }
 
+export interface LikePostApiProps {
+  postId: string;
+}
+
+export interface DislikePostApiProps {
+  postId: string;
+}
+
 export interface PostCommentApiProps {
   postId: string;
   author: string;
@@ -32,6 +40,16 @@ export interface DeleteCommentApiProps {
   postId: string;
   commentId: string;
   password: string;
+}
+
+export interface LikeCommentApiProps {
+  postId: string;
+  commentId: string;
+}
+
+export interface DislikeCommentApiProps {
+  postId: string;
+  commentId: string;
 }
 
 export const getPostsApi = (data: GetPostsApiProps) => {
@@ -50,10 +68,26 @@ export const deletePostApi = (data: GetPostApiProps) => {
   return requestApi.delete('post', { params: data });
 };
 
+export const likePostApi = (data: LikePostApiProps) => {
+  return requestApi.post('post/like', data);
+};
+
+export const dislikePostApi = (data: DislikePostApiProps) => {
+  return requestApi.post('post/dislike', data);
+};
+
 export const postCommentApi = (data: PostCommentApiProps) => {
   return requestApi.post('comment', data);
 };
 
 export const deleteCommentApi = (data: DeleteCommentApiProps) => {
   return requestApi.delete('comment', { params: data });
+};
+
+export const likeCommentApi = (data: LikeCommentApiProps) => {
+  return requestApi.post('comment/like', data);
+};
+
+export const dislikeCommentApi = (data: DislikeCommentApiProps) => {
+  return requestApi.post('comment/dislike', data);
 };

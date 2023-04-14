@@ -1,8 +1,9 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import dynamic from 'next/dynamic';
-import Router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useRef } from 'react';
 import { postPostApi } from '../../apis';
+import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 
 import Layout from '../../layout';
@@ -61,7 +62,7 @@ export default function Writing({}: Props): JSX.Element {
     }
 
     if (res.status === 201) {
-      Router.push(`/post/${category}/${res.data.categoryId}`);
+      router.push(`/post/${category}/${res.data.categoryId}`);
     }
   };
 
@@ -70,6 +71,7 @@ export default function Writing({}: Props): JSX.Element {
       <Page>
         <Layout>
           <main>
+            <CategoryHeader category={category as string} />
             <Box sx={{ p: 2 }}>
               <FormControl fullWidth>
                 <InputLabel id="category-label">카테고리</InputLabel>
