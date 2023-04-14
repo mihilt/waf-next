@@ -33,6 +33,7 @@ interface Props {
   posts: Posts;
 }
 
+// TODO: url에 '+' 문자 있는 기본값 replace로 떼운거 다른 문자열로 변경하고 백엔드도 변경, 왜 new URL 내부에서 + 문자가 %2B로 바뀌는지 확인 필요, 기존에 +로 그냥 넣었을 때는 백엔드에서 공백 문자로 받았음.
 export default function Category({ count, posts }: Props): JSX.Element {
   const isFirstRender = useRef(true);
 

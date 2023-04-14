@@ -2,10 +2,18 @@ import Editor from '@toast-ui/editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
 import { useEffect } from 'react';
+import { uploadApi } from '../apis/upload';
 
 interface Props {
   contentsRef: any;
 }
+
+const onUploadImage = async (blob: Blob | File, callback: any) => {
+  const formData = new FormData();
+  formData.append('file', blob);
+  const response = await uploadApi({ formData });
+  callback(`${process.env.API_URL}${response.data.url}`, 'image');
+};
 
 export default function ToastUiEditor({ contentsRef }: Props): JSX.Element {
   useEffect(() => {
@@ -21,19 +29,10 @@ export default function ToastUiEditor({ contentsRef }: Props): JSX.Element {
         ['heading', 'bold', 'italic', 'strike'],
         ['image', 'link'],
       ],
-      // TODO: express 내부에 직접 저장하는 방식 혹은 스토리지 서비스 사용해보기, 아니면 그냥 base64 업로드 못하게 막기
-      /* hooks: {
-        addImageBlobHook: async (blob, callback) => {
-          const formData = new FormData();
-          formData.append('image', blob);
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          const data = await response.json();
-          callback(data.url, 'alt text');
-        },
-      }, */
+
+      hooks: {
+        addImageBlobHook: onUploadImage,
+      },
     });
   }, []);
 
