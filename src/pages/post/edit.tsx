@@ -16,6 +16,7 @@ export default function Edit({}: Props): JSX.Element {
   const [beforePassword, setBeforePassword] = useState('');
   const [postId, setPostId] = useState('');
 
+  // TODO: useRef current.value로 값을 넣으니 mui TextField의 라벨이 값이 없는 것 처럼 보이는데 언젠가는 해결 필요
   const authorRef = useRef<any>(null);
   const newPasswordRef = useRef<any>(null);
   const titleRef = useRef<any>(null);

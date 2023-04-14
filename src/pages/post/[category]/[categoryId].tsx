@@ -425,10 +425,10 @@ export default function CategoryId({
                 <Button
                   variant="contained"
                   onClick={() => {
-                    router.push(`/posts/${category}`);
+                    router.back();
                   }}
                 >
-                  목록
+                  이전
                 </Button>
               </Box>
               <Box sx={{ display: 'flex' }}>

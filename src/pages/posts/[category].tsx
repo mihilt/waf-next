@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Divider,
   FormControl,
   Grid,
   IconButton,
@@ -15,52 +14,82 @@ import {
   useTheme,
 } from '@mui/material';
 
+import StarsIcon from '@mui/icons-material/Stars';
 import CreateIcon from '@mui/icons-material/Create';
 import SearchIcon from '@mui/icons-material/Search';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getPostsApi } from '../../apis';
+import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 import Layout from '../../layout';
 import { Posts } from '../../types';
-import { isSameDate } from '../../utils';
-import CategoryHeader from '../../components/categoryHeader';
+import { isRecommendedPost, isSameDate } from '../../utils';
 interface Props {
   count: number;
   posts: Posts;
 }
 
 export default function Category({ count, posts }: Props): JSX.Element {
+  const isFirstRender = useRef(true);
+
   const router = useRouter();
   const theme = useTheme();
 
   const { category, page } = router.query;
 
   const [searchType, setSearchType] = useState('title+contents');
-
   const [searchValue, setSearchValue] = useState('');
+  const [isSearchRecommended, setIsSearchRecommended] = useState(false);
 
   const isSmallerThanSm = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     // TODO: Router.push 함수의 설정을 통해서도 기존 state 초기화가 가능할 것 같은데 확인해보기
 
-    const { 'search-type': searchType, 'search-value': searchValue } = router.query;
+    const {
+      'search-type': searchType,
+      'search-value': searchValue,
+      'search-recommended': searchRecommended,
+    } = router.query;
     setSearchType(
       searchType === undefined ? 'title+contents' : String(searchType)?.replace(' ', '+'),
     );
     setSearchValue(searchValue === undefined ? '' : String(searchValue));
+
+    setIsSearchRecommended(searchRecommended === undefined ? false : true);
   }, [router.query]);
 
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // first render
+      isFirstRender.current = false;
+    } else {
+      handleSearch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSearchRecommended]);
+
   const handleSearch = () => {
-    router.push(
-      searchType && searchValue
-        ? `${category}?search-type=${searchType}&search-value=${searchValue}`
-        : `${category}`,
-    );
+    let url = new URL(window.location.href);
+
+    const search: any = {};
+
+    if (searchType && searchValue) {
+      search['search-type'] = searchType;
+      search['search-value'] = searchValue;
+    }
+
+    if (isSearchRecommended) {
+      search['search-recommended'] = true;
+    }
+
+    url.search = qs.stringify(search);
+
+    router.push(url.href.replace('%2B', '+'));
   };
 
   return (
@@ -87,11 +116,20 @@ export default function Category({ count, posts }: Props): JSX.Element {
                 }}
               >
                 <Box sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
+                  {isRecommendedPost(post.like) && (
+                    <StarsIcon
+                      sx={{
+                        color: 'red',
+                        fontSize: '0.8rem',
+                        verticalAlign: 'middle',
+                      }}
+                    />
+                  )}{' '}
                   {post.title}
                   <span
                     style={{
                       color: '#000999',
-                      fontSize: '10px',
+                      fontSize: '0.6rem',
                       fontWeight: 700,
                       marginLeft: '0.1rem',
                     }}
@@ -105,7 +143,12 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   {isSameDate(new Date(post.createdAt), new Date())
                     ? moment(post.createdAt).format('HH:mm')
                     : moment(post.createdAt).format('YYYY-MM-DD')}{' '}
-                  | 조회: {post.view} | 추천: {post.like}
+                  | 조회: {post.view} | 추천:{' '}
+                  {isRecommendedPost(post.like) ? (
+                    <span style={{ color: '#000999', fontWeight: 600 }}>{post.like}</span>
+                  ) : (
+                    post.like
+                  )}
                 </Box>
               </Box>
             ))
@@ -161,11 +204,20 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     {post.categoryId}
                   </Grid>
                   <Grid item xs={6} sx={{ textAlign: 'left' }}>
-                    {post.title}
+                    {isRecommendedPost(post.like) && (
+                      <StarsIcon
+                        sx={{
+                          color: 'red',
+                          fontSize: '0.8rem',
+                          verticalAlign: 'middle',
+                        }}
+                      />
+                    )}{' '}
+                    {post.title}{' '}
                     <span
                       style={{
                         color: '#000999',
-                        fontSize: '10px',
+                        fontSize: '0.6rem',
                         fontWeight: 700,
                         marginLeft: '0.1rem',
                       }}
@@ -185,7 +237,11 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     {post.view}
                   </Grid>
                   <Grid item xs={0.75}>
-                    {post.like}
+                    {isRecommendedPost(post.like) ? (
+                      <span style={{ color: '#000999', fontWeight: 600 }}>{post.like}</span>
+                    ) : (
+                      post.like
+                    )}
                   </Grid>
                 </Grid>
               ))}
@@ -195,15 +251,28 @@ export default function Category({ count, posts }: Props): JSX.Element {
             sx={{ display: 'flex', justifyContent: 'space-between', m: isSmallerThanSm ? 1.5 : 2 }}
           >
             <Box sx={{ fontSize: '0.725rem' }}>총: {count.toLocaleString()}개</Box>
-            <Button
-              variant="contained"
-              startIcon={<CreateIcon />}
-              onClick={() => {
-                router.push(`/post/write?category=${category}`);
-              }}
-            >
-              글쓰기
-            </Button>
+            <Box sx={{ display: 'flex' }}>
+              <Button
+                variant="contained"
+                startIcon={<StarsIcon />}
+                onClick={() => {
+                  setIsSearchRecommended(e => !e);
+                }}
+                color={isSearchRecommended ? 'primary' : 'gray'}
+              >
+                추천글
+              </Button>
+              <Box sx={{ ml: 1 }} />
+              <Button
+                variant="contained"
+                startIcon={<CreateIcon />}
+                onClick={() => {
+                  router.push(`/post/write?category=${category}`);
+                }}
+              >
+                글쓰기
+              </Button>
+            </Box>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
             <Pagination
@@ -293,13 +362,20 @@ export default function Category({ count, posts }: Props): JSX.Element {
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext,
 ) => {
-  const { category, 'search-type': searchType, 'search-value': searchValue, page } = context.query;
+  const {
+    category,
+    'search-type': searchType,
+    'search-value': searchValue,
+    page,
+    'search-recommended': searchRecommended,
+  } = context.query;
 
   const param = {
     category: category as string,
     page: page as string,
     ...(searchType &&
       searchValue && { searchType: searchType as string, searchValue: searchValue as string }),
+    ...(searchRecommended && { like: process.env.RECOMMENDED_POST_LIKE as string }),
   };
 
   const res = await getPostsApi(param);

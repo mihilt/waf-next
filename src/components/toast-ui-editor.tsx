@@ -21,6 +21,7 @@ export default function ToastUiEditor({ contentsRef }: Props): JSX.Element {
         ['heading', 'bold', 'italic', 'strike'],
         ['image', 'link'],
       ],
+      // TODO: express 내부에 직접 저장하는 방식 혹은 스토리지 서비스 사용해보기, 아니면 그냥 base64 업로드 못하게 막기
       /* hooks: {
         addImageBlobHook: async (blob, callback) => {
           const formData = new FormData();

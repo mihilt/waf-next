@@ -4,7 +4,7 @@ export interface GetPostsApiProps {
   page?: string;
   limit?: number;
   category?: string;
-  like?: number;
+  like?: string;
 }
 
 export interface GetPostApiProps {
