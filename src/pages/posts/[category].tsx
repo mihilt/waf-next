@@ -305,7 +305,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
               alignItems: 'center',
             }}
           >
-            <Box sx={{ width: 120 }}>
+            <Box sx={{ width: 100 }}>
               <FormControl variant="standard" fullWidth>
                 <InputLabel>검색 조건</InputLabel>
                 <Select
@@ -321,7 +321,8 @@ export default function Category({ count, posts }: Props): JSX.Element {
                 </Select>
               </FormControl>
             </Box>
-            <FormControl sx={{ ml: 1 }} variant="standard">
+            <Box sx={{ ml: 1 }} />
+            <FormControl sx={{ width: 185 }} variant="standard">
               <InputLabel />
               <Input
                 value={searchValue}
@@ -334,7 +335,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                 onChange={e => {
                   setSearchValue(e.target.value);
                 }}
-                placeholder="검색어를 입력하세요"
+                placeholder="검색어를 입력하세요."
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton

@@ -1,7 +1,16 @@
 import CloseIcon from '@mui/icons-material/Close';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import { Box, Button, Divider, IconButton, Modal, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Modal,
+  TextField,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -139,10 +148,13 @@ export default function CategoryId({
   title,
   view,
 }: Props): JSX.Element {
+  const theme = useTheme();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [modalApi, setModalApi] = useState<any>();
   const [modalDataForApi, setModalDataForApi] = useState<any>();
   const [modalApiSuccessedFunc, setModalApiSuccessedFunc] = useState<any>();
+
+  const isSmallerThanSm = useMediaQuery(theme.breakpoints.down('sm'));
 
   const router = useRouter();
 
@@ -381,12 +393,12 @@ export default function CategoryId({
                 조회수: {view} | 추천: {like}
               </Box>
             </Box>
-            <Box sx={{ mt: 1 }} />
+            <Box sx={{ mt: isSmallerThanSm ? 2 : 5 }} />
             <Box
               sx={{ fontSize: '0.8rem', px: 0.5 }}
               dangerouslySetInnerHTML={{ __html: contents }}
             />
-            <Box sx={{ mt: 5 }} />
+            <Box sx={{ mt: isSmallerThanSm ? 2 : 5 }} />
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box sx={{ display: 'flex' }}>
                 <IconButton
@@ -415,7 +427,7 @@ export default function CategoryId({
                 </IconButton>
               </Box>
             </Box>
-            <Box sx={{ mt: 5 }} />
+            <Box sx={{ mt: isSmallerThanSm ? 2 : 5 }} />
             <Divider />
             <Box sx={{ mt: 1.5 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

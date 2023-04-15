@@ -6,7 +6,7 @@ interface Props {}
 export default function Header({}: Props): JSX.Element {
   return (
     <>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', background: 'white' }}>
         <Box
           sx={{ fontSize: '1.5rem', fontWeight: 700, cursor: 'pointer', p: 1 }}
           onClick={() => {
