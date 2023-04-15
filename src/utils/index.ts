@@ -11,3 +11,8 @@ export const clearQueryParams = () => {
   currentUrl.search = '';
   window.history.replaceState(null, '', currentUrl.href);
 };
+
+export const stringEllipsis = (str: string, len: number) => {
+  if (str.length <= len) return str;
+  return `${str.slice(0, len)}...`;
+};

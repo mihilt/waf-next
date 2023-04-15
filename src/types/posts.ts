@@ -1,5 +1,13 @@
+export interface Categories extends Array<Category> {}
 export interface Posts extends Array<Post> {}
 export interface Comments extends Array<Comment> {}
+
+export interface Category {
+  categoryId: string;
+  name: string;
+  auth?: boolean;
+  recentPosts?: Post[];
+}
 
 export interface Post {
   postId: string;
@@ -23,11 +31,4 @@ export interface Comment {
   deleted: boolean;
   createdAt: string;
   comments?: Comments;
-}
-
-export interface Category {
-  categoryId: string;
-  name: string;
-  auth?: boolean;
-  recentPosts?: Post[];
 }

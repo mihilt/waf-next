@@ -27,7 +27,7 @@ import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 import Layout from '../../layout';
 import { Category, Posts } from '../../types';
-import { isRecommendedPost, isSameDate } from '../../utils';
+import { isRecommendedPost, isSameDate, stringEllipsis } from '../../utils';
 interface Props {
   count: number;
   category: Category;
@@ -47,7 +47,7 @@ export default function Category({ count, category, posts }: Props): JSX.Element
   const [searchValue, setSearchValue] = useState('');
   const [isSearchRecommended, setIsSearchRecommended] = useState(false);
 
-  const isSmallerThanSm = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallerThanMd = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     // TODO: Router.push 함수의 설정을 통해서도 기존 state 초기화가 가능할 것 같은데 확인해보기
@@ -99,7 +99,7 @@ export default function Category({ count, category, posts }: Props): JSX.Element
       <Layout>
         <main>
           <CategoryHeader category={category} />
-          {isSmallerThanSm ? (
+          {isSmallerThanMd ? (
             posts.map(post => (
               <Box
                 key={post.postId}
@@ -127,7 +127,7 @@ export default function Category({ count, category, posts }: Props): JSX.Element
                       }}
                     />
                   )}{' '}
-                  {post.title}
+                  {stringEllipsis(post.title, 35)}
                   <span
                     style={{
                       color: '#000999',
@@ -215,7 +215,7 @@ export default function Category({ count, category, posts }: Props): JSX.Element
                         }}
                       />
                     )}{' '}
-                    {post.title}{' '}
+                    {stringEllipsis(post.title, 40)}{' '}
                     <span
                       style={{
                         color: '#000999',
@@ -250,7 +250,7 @@ export default function Category({ count, category, posts }: Props): JSX.Element
             </>
           )}
           <Box
-            sx={{ display: 'flex', justifyContent: 'space-between', m: isSmallerThanSm ? 1.5 : 2 }}
+            sx={{ display: 'flex', justifyContent: 'space-between', m: isSmallerThanMd ? 1.5 : 2 }}
           >
             <Box sx={{ fontSize: '0.725rem' }}>총: {count.toLocaleString()}개</Box>
             <Box sx={{ display: 'flex' }}>

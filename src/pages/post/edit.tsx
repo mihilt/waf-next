@@ -154,7 +154,9 @@ export default function Edit({
                 label="제목"
                 variant="outlined"
                 inputRef={titleRef}
-                defaultValue={title}
+                inputProps={{
+                  maxLength: 100,
+                }}
               />
               <Box sx={{ mt: 1.5 }} />
               <Box>

@@ -118,7 +118,15 @@ export default function Writing({ category }: Props): JSX.Element {
                 />
               </Box>
               <Box sx={{ mt: 1.5 }} />
-              <TextField fullWidth label="제목" variant="outlined" inputRef={titleRef} />
+              <TextField
+                fullWidth
+                label="제목"
+                variant="outlined"
+                inputRef={titleRef}
+                inputProps={{
+                  maxLength: 100,
+                }}
+              />
               <Box sx={{ mt: 1.5 }} />
               <Box>
                 <Editor contentRef={contentRef} />
