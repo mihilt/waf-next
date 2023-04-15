@@ -12,7 +12,7 @@ const onUploadImage = async (blob: Blob | File, callback: any) => {
   const formData = new FormData();
   formData.append('file', blob);
   const response = await uploadApi({ formData });
-  callback(`${process.env.API_URL}${response.data.url}`, 'image');
+  callback(`${process.env.CLIENT_URL}/api${response.data.url}`, 'image');
 };
 
 export default function ToastUiEditor({ contentRef }: Props): JSX.Element {
