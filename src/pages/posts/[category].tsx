@@ -340,7 +340,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     <IconButton
                       onClick={e => {
                         /* if (!searchValue) {
-                          alert('검색어를 입력하세요');
+                          toast.error('검색어를 입력하세요');
                           return;
                         } */
                         handleSearch();

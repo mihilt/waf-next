@@ -6,6 +6,8 @@ import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
+import { toast } from 'react-toastify';
+
 import {
   checkPasswordPostApi,
   deleteCommentApi,
@@ -108,7 +110,7 @@ const DeleteEditModal = ({
                   password,
                 });
               } catch (e) {
-                alert('비밀번호가 일치하지 않습니다.');
+                toast.error('비밀번호가 일치하지 않습니다.');
                 passwordRef.current.focus();
                 return;
               }
@@ -150,75 +152,80 @@ export default function CategoryId({
     const commentContentsRef = useRef<any>(null);
 
     return (
-      <Box sx={{ display: 'flex' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <>
+        <Box sx={{ display: 'flex' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <TextField
+              label="작성자"
+              autoComplete="username"
+              sx={{ width: '100%' }}
+              inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
+              InputLabelProps={{ style: { fontSize: '0.7rem' } }}
+              inputRef={commentAuthorRef}
+            />
+            <TextField
+              label="비밀번호"
+              type="password"
+              autoComplete="current-password"
+              sx={{ width: '100%' }}
+              inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
+              InputLabelProps={{ style: { fontSize: '0.7rem' } }}
+              inputRef={commentPasswordRef}
+            />
+          </Box>
+          <Box sx={{ ml: 1 }} />
           <TextField
-            label="작성자"
-            autoComplete="username"
             sx={{ width: '100%' }}
-            inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
-            InputLabelProps={{ style: { fontSize: '0.7rem' } }}
-            inputRef={commentAuthorRef}
+            multiline
+            rows={3}
+            placeholder={'댓글을 입력해주세요.'}
+            inputProps={{ style: { fontSize: '0.7rem' } }}
+            inputRef={commentContentsRef}
           />
-          <TextField
-            label="비밀번호"
-            type="password"
-            autoComplete="current-password"
-            sx={{ width: '100%' }}
-            inputProps={{ style: { fontSize: '0.7rem', padding: 15 } }}
-            InputLabelProps={{ style: { fontSize: '0.7rem' } }}
-            inputRef={commentPasswordRef}
-          />
+          <Box sx={{ ml: 1 }} />
+          <Button
+            variant="contained"
+            onClick={async () => {
+              const author = commentAuthorRef.current.value;
+              const password = commentPasswordRef.current.value;
+              const contents = commentContentsRef.current.value;
+
+              if (!author) {
+                toast.error('작성자를 입력해주세요.');
+                commentAuthorRef.current.focus();
+                return;
+              }
+
+              if (!password) {
+                toast.error('비밀번호를 입력해주세요.');
+                commentPasswordRef.current.focus();
+                return;
+              }
+
+              if (!contents) {
+                toast.error('내용을 입력해주세요.');
+                commentContentsRef.current.focus();
+                return;
+              }
+
+              await postCommentApi({
+                postId,
+                author,
+                password,
+                contents,
+                parentComment: parentCommentId,
+              });
+
+              router.replace(router.asPath, undefined, { scroll: false });
+
+              toast.success('댓글을 등록했습니다.');
+            }}
+          >
+            등록
+          </Button>
         </Box>
-        <Box sx={{ ml: 1 }} />
-        <TextField
-          sx={{ width: '100%' }}
-          multiline
-          rows={3}
-          placeholder={'댓글을 입력해주세요.'}
-          inputProps={{ style: { fontSize: '0.7rem' } }}
-          inputRef={commentContentsRef}
-        />
-        <Box sx={{ ml: 1 }} />
-        <Button
-          variant="contained"
-          onClick={async () => {
-            const author = commentAuthorRef.current.value;
-            const password = commentPasswordRef.current.value;
-            const contents = commentContentsRef.current.value;
-
-            if (!author) {
-              alert('작성자를 입력해주세요.');
-              commentAuthorRef.current.focus();
-              return;
-            }
-
-            if (!password) {
-              alert('비밀번호를 입력해주세요.');
-              commentPasswordRef.current.focus();
-              return;
-            }
-
-            if (!contents) {
-              alert('내용을 입력해주세요.');
-              commentContentsRef.current.focus();
-              return;
-            }
-
-            await postCommentApi({
-              postId,
-              author,
-              password,
-              contents,
-              parentComment: parentCommentId,
-            });
-
-            location.reload();
-          }}
-        >
-          등록
-        </Button>
-      </Box>
+        <Box sx={{ mt: 1 }} />
+      </>
     );
   };
 
@@ -240,21 +247,6 @@ export default function CategoryId({
               {moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}
             </Box>
           </Box>
-          {!parentCommentId && isOpenReply && (
-            <>
-              <Box sx={{ mt: 1 }} />
-              <Divider />
-              <Box sx={{ mt: 1 }} />
-              <Box sx={{ display: 'flex' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
-                  <Box>└</Box>
-                </Box>
-                <Box sx={{ width: '100%' }}>
-                  <CommentInputSection parentCommentId={comment.commentId} />
-                </Box>
-              </Box>
-            </>
-          )}
         </Box>
       );
     }
@@ -286,7 +278,8 @@ export default function CategoryId({
                     postId,
                     commentId: comment.commentId,
                   });
-                  location.reload();
+                  router.replace(router.asPath, undefined, { scroll: false });
+                  toast.success('댓글을 추천했습니다.');
                 }}
               />{' '}
               <ThumbDownIcon
@@ -301,7 +294,8 @@ export default function CategoryId({
                     postId,
                     commentId: comment.commentId,
                   });
-                  location.reload();
+                  router.replace(router.asPath, undefined, { scroll: false });
+                  toast.success('댓글을 비추천했습니다.');
                 }}
               />
             </Box>
@@ -327,7 +321,9 @@ export default function CategoryId({
                   setModalApi(() => deleteCommentApi);
                   setModalDataForApi({ postId, commentId: comment.commentId });
                   setModalApiSuccessedFunc(() => () => {
-                    location.reload();
+                    router.replace(router.asPath, undefined, { scroll: false });
+                    setOpenModal(false);
+                    toast.success('댓글을 삭제했습니다.');
                   });
                 }}
               >
@@ -338,9 +334,9 @@ export default function CategoryId({
         </Box>
         {!parentCommentId && isOpenReply && (
           <>
-            <Box sx={{ mt: 1 }} />
+            <Box sx={{ mt: 1.25 }} />
             <Divider />
-            <Box sx={{ mt: 1 }} />
+            <Box sx={{ mt: 2 }} />
             <Box sx={{ display: 'flex' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
                 <Box>└</Box>
@@ -399,7 +395,8 @@ export default function CategoryId({
                     await likePostApi({
                       postId,
                     });
-                    location.reload();
+                    router.replace(router.asPath, undefined, { scroll: false });
+                    toast.success('글을 추천했습니다.');
                   }}
                 >
                   <ThumbUpIcon fontSize="inherit" sx={{ color: '#000999' }} />
@@ -410,7 +407,8 @@ export default function CategoryId({
                     await dislikePostApi({
                       postId,
                     });
-                    location.reload();
+                    router.replace(router.asPath, undefined, { scroll: false });
+                    toast.success('글을 비추천했습니다.');
                   }}
                 >
                   <ThumbDownIcon fontSize="inherit" />
@@ -421,7 +419,16 @@ export default function CategoryId({
             <Divider />
             <Box sx={{ mt: 1.5 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Box>
+              <Box sx={{ display: 'flex' }}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    router.push(`/posts/${category}`);
+                  }}
+                >
+                  목록
+                </Button>
+                <Box sx={{ ml: 0.5 }} />
                 <Button
                   variant="contained"
                   onClick={() => {
@@ -457,6 +464,8 @@ export default function CategoryId({
                     setModalDataForApi({ postId });
                     setModalApiSuccessedFunc(() => () => {
                       router.push(`/posts/${category}`);
+                      setOpenModal(false);
+                      toast.success('글을 삭제했습니다.');
                     });
                   }}
                 >
@@ -469,14 +478,14 @@ export default function CategoryId({
             <Box sx={{ borderBottom: '2.5px solid #0000001f' }} />
             {comments.map(comment => (
               <Box key={comment.commentId}>
-                <Box sx={{ mt: 1 }} />
+                <Box sx={{ mt: 1.25 }} />
                 <CommentSection comment={comment} />
-                <Box sx={{ mt: 1 }} />
+                <Box sx={{ mt: 1.25 }} />
                 {comment.comments &&
                   comment.comments.map(commentReply => (
                     <Box key={commentReply.commentId}>
                       <Divider />
-                      <Box sx={{ mt: 1 }} />
+                      <Box sx={{ mt: 1.25 }} />
                       <Box sx={{ display: 'flex' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
                           <Box>└</Box>
@@ -486,13 +495,13 @@ export default function CategoryId({
                           parentCommentId={comment.commentId}
                         />
                       </Box>
-                      <Box sx={{ mt: 1 }} />
+                      <Box sx={{ mt: 1.25 }} />
                     </Box>
                   ))}
                 <Divider />
               </Box>
             ))}
-            <Box sx={{ mt: 1 }} />
+            <Box sx={{ mt: 2 }} />
             <CommentInputSection />
           </Box>
         </main>

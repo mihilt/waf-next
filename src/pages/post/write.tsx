@@ -3,9 +3,10 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useRef } from 'react';
 import { postPostApi } from '../../apis';
+import { toast } from 'react-toastify';
+
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
-
 import Layout from '../../layout';
 
 interface Props {}
@@ -30,24 +31,24 @@ export default function Writing({}: Props): JSX.Element {
     const password = passwordRef.current.value;
 
     if (!author) {
-      alert('작성자를 입력해주세요.');
+      toast.error('작성자를 입력해주세요.');
       authorRef.current.focus();
       return;
     }
 
     if (!password) {
-      alert('비밀번호를 입력해주세요.');
+      toast.error('비밀번호를 입력해주세요.');
       passwordRef.current.focus();
       return;
     }
 
     if (!title) {
-      alert('제목을 입력해주세요.');
+      toast.error('제목을 입력해주세요.');
       titleRef.current.focus();
       return;
     }
     if (contentsRef.current.innerText === '\n') {
-      alert('내용을 입력하세요.');
+      toast.error('내용을 입력해주세요.');
       contentsRef.current.querySelector('.ProseMirror.toastui-editor-contents').focus();
       return;
     }
@@ -57,12 +58,13 @@ export default function Writing({}: Props): JSX.Element {
       res = await postPostApi({ title, contents, category: category as string, author, password });
     } catch (e) {
       console.log(`ERROR: ${e}`);
-      alert('글 작성에 실패했습니다.');
+      toast.error('글 등록에 실패했습니다.');
       return;
     }
 
     if (res.status === 201) {
       router.push(`/post/${category}/${res.data.categoryId}`);
+      toast.success('글을 등록했습니다.');
     }
   };
 
@@ -108,17 +110,27 @@ export default function Writing({}: Props): JSX.Element {
               </Box>
               <Box sx={{ mt: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Button
-                  variant="contained"
-                  color="gray"
-                  onClick={() => {
-                    router.back();
-                  }}
-                >
-                  이전
-                </Button>
+                <Box sx={{ display: 'flex' }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      router.push(`/posts/${category}`);
+                    }}
+                  >
+                    목록
+                  </Button>
+                  <Box sx={{ ml: 0.5 }} />
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      router.back();
+                    }}
+                  >
+                    이전
+                  </Button>
+                </Box>
                 <Button variant="contained" onClick={handleWrite}>
-                  작성
+                  등록
                 </Button>
               </Box>
             </Box>
