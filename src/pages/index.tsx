@@ -98,7 +98,7 @@ export default function Home({ categories }: Props): JSX.Element {
                 </Grid>
               ))}
             </Grid>
-            <Box sx={{ mt: 1 }} />
+            <Box sx={{ mt: 2 }} />
           </Box>
         </main>
       </Layout>

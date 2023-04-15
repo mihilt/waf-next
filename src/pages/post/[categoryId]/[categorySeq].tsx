@@ -32,6 +32,7 @@ import CategoryHeader from '../../../components/categoryHeader';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
 import { Category, Comment, Comments, Post } from '../../../types';
+import { AxiosError } from 'axios';
 
 interface Props {
   category: Category;
@@ -160,6 +161,65 @@ export default function CategorySeq({
 
   const router = useRouter();
 
+  const handleLikePost = async () => {
+    try {
+      await likePostApi({
+        postId,
+      });
+      router.replace(router.asPath, undefined, { scroll: false });
+      toast.success('글을 추천했습니다.');
+    } catch (e: any) {
+      if (e.response.data.code === 'already-did') {
+        toast.error('이미 평가를 완료한 글입니다.');
+        return;
+      }
+    }
+  };
+
+  const handleDislikePost = async () => {
+    try {
+      await dislikePostApi({
+        postId,
+      });
+      router.replace(router.asPath, undefined, { scroll: false });
+      toast.success('글을 비추천했습니다.');
+    } catch (e: any) {
+      if (e.response.data.code === 'already-did') {
+        toast.error('이미 평가를 완료한 글입니다.');
+      }
+    }
+  };
+
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      await likeCommentApi({
+        postId,
+        commentId,
+      });
+      router.replace(router.asPath, undefined, { scroll: false });
+      toast.success('댓글을 추천했습니다.');
+    } catch (e: any) {
+      if (e.response.data.code === 'already-did') {
+        toast.error('이미 평가를 완료한 댓글입니다.');
+      }
+    }
+  };
+
+  const handleDislikeComment = async (commentId: string) => {
+    try {
+      await dislikeCommentApi({
+        postId,
+        commentId,
+      });
+      router.replace(router.asPath, undefined, { scroll: false });
+      toast.success('댓글을 비추천했습니다.');
+    } catch (e: any) {
+      if (e.response.data.code === 'already-did') {
+        toast.error('이미 평가를 완료한 댓글입니다.');
+      }
+    }
+  };
+
   const CommentInputSection = ({ parentCommentId }: CommentInputSectionProps) => {
     const commentAuthorRef = useRef<any>(null);
     const commentPasswordRef = useRef<any>(null);
@@ -287,14 +347,7 @@ export default function CategorySeq({
                   cursor: 'pointer',
                   color: '#000999',
                 }}
-                onClick={async () => {
-                  await likeCommentApi({
-                    postId,
-                    commentId: comment.commentId,
-                  });
-                  router.replace(router.asPath, undefined, { scroll: false });
-                  toast.success('댓글을 추천했습니다.');
-                }}
+                onClick={() => handleLikeComment(comment.commentId)}
               />{' '}
               <ThumbDownIcon
                 sx={{
@@ -303,14 +356,7 @@ export default function CategorySeq({
                   cursor: 'pointer',
                   color: '#909090',
                 }}
-                onClick={async () => {
-                  await dislikeCommentApi({
-                    postId,
-                    commentId: comment.commentId,
-                  });
-                  router.replace(router.asPath, undefined, { scroll: false });
-                  toast.success('댓글을 비추천했습니다.');
-                }}
+                onClick={() => handleDislikeComment(comment.commentId)}
               />
             </Box>
             <Box sx={{ display: 'flex' }}>
@@ -403,28 +449,10 @@ export default function CategorySeq({
             <Box sx={{ mt: isSmallerThanSm ? 2 : 5 }} />
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box sx={{ display: 'flex' }}>
-                <IconButton
-                  size="large"
-                  onClick={async () => {
-                    await likePostApi({
-                      postId,
-                    });
-                    router.replace(router.asPath, undefined, { scroll: false });
-                    toast.success('글을 추천했습니다.');
-                  }}
-                >
+                <IconButton size="large" onClick={handleLikePost}>
                   <ThumbUpIcon fontSize="inherit" sx={{ color: '#000999' }} />
                 </IconButton>
-                <IconButton
-                  size="large"
-                  onClick={async () => {
-                    await dislikePostApi({
-                      postId,
-                    });
-                    router.replace(router.asPath, undefined, { scroll: false });
-                    toast.success('글을 비추천했습니다.');
-                  }}
-                >
+                <IconButton size="large" onClick={handleDislikePost}>
                   <ThumbDownIcon fontSize="inherit" />
                 </IconButton>
               </Box>
