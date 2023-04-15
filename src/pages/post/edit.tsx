@@ -4,21 +4,37 @@ import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { checkPasswordPostApi, patchPostApi } from '../../apis';
+import { checkPasswordPostApi, getCategoryApi, patchPostApi } from '../../apis';
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 
 import Layout from '../../layout';
-interface Props {}
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { Category } from '../../types';
+import { clearQueryParams } from '../../utils';
+interface Props {
+  category: Category;
+  categoryId: string;
+  postId: string;
+  author: string;
+  title: string;
+  password: string;
+  content: string;
+}
 
-export default function Edit({}: Props): JSX.Element {
+export default function Edit({
+  category,
+  categoryId,
+  postId,
+  author,
+  title,
+  password: beforePassword,
+  content,
+}: Props): JSX.Element {
+  clearQueryParams();
+
   const router = useRouter();
 
-  const [categoryId, setCategoryId] = useState('');
-  const [beforePassword, setBeforePassword] = useState('');
-  const [postId, setPostId] = useState('');
-
-  // TODO: useRef current.value로 값을 넣으니 mui TextField의 라벨이 값이 없는 것 처럼 보이는데 언젠가는 해결 필요
   const authorRef = useRef<any>(null);
   const newPasswordRef = useRef<any>(null);
   const titleRef = useRef<any>(null);
@@ -27,36 +43,16 @@ export default function Edit({}: Props): JSX.Element {
   const Editor = dynamic(() => import('../../components/toast-ui-editor'), { ssr: false });
 
   useEffect(() => {
-    (async () => {
-      const { postId, password: beforePassword } = router.query;
-
-      try {
-        const res = await checkPasswordPostApi({
-          postId: postId as string,
-          password: beforePassword as string,
-        });
-
-        const { categoryId, author, title, content, password } = res.data;
-
-        setCategoryId(categoryId);
-        setBeforePassword(password);
-        setPostId(postId as string);
-
-        // TODO: URL 패스워드 제거 + 이는 글쓰기에서도 필요, beforePassword, newPassword 좀 더 명확하게 정리 필요
-
-        setTimeout(() => {
-          authorRef.current.value = author;
-          titleRef.current.value = title;
-          contentRef.current.querySelector('.ProseMirror.toastui-editor-contents').innerHTML =
-            content;
-        }, 500);
-      } catch (e) {
-        router.push('/');
+    const interval = setInterval(() => {
+      const editorElement = contentRef.current?.querySelector(
+        '.ProseMirror.toastui-editor-contents',
+      );
+      if (editorElement) {
+        editorElement.innerHTML = content;
+        clearInterval(interval);
       }
-    })();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }, 500);
+  }, [content]);
 
   const handleEdit = async () => {
     const title = titleRef.current.value;
@@ -116,13 +112,18 @@ export default function Edit({}: Props): JSX.Element {
       <Page>
         <Layout>
           <main>
-            <CategoryHeader categoryId={categoryId as string} />
+            <CategoryHeader category={category} />
             <Box sx={{ p: 2 }}>
               <FormControl fullWidth>
                 <InputLabel id="category-label">카테고리</InputLabel>
-                {categoryId && (
-                  <Select disabled labelId="category-label" value={categoryId} label="카테고리">
-                    <MenuItem value={categoryId}>{categoryId}</MenuItem>
+                {category && (
+                  <Select
+                    disabled
+                    labelId="category-label"
+                    value={category.categoryId}
+                    label="카테고리"
+                  >
+                    <MenuItem value={category.categoryId}>{category.name}</MenuItem>
                   </Select>
                 )}
               </FormControl>
@@ -133,6 +134,7 @@ export default function Edit({}: Props): JSX.Element {
                   autoComplete="username"
                   variant="outlined"
                   inputRef={authorRef}
+                  defaultValue={author}
                   fullWidth
                 />
                 <Box sx={{ ml: 1 }} />
@@ -142,11 +144,18 @@ export default function Edit({}: Props): JSX.Element {
                   autoComplete="current-password"
                   variant="outlined"
                   inputRef={newPasswordRef}
+                  defaultValue={beforePassword}
                   fullWidth
                 />
               </Box>
               <Box sx={{ mt: 1.5 }} />
-              <TextField fullWidth label="제목" variant="outlined" inputRef={titleRef} />
+              <TextField
+                fullWidth
+                label="제목"
+                variant="outlined"
+                inputRef={titleRef}
+                defaultValue={title}
+              />
               <Box sx={{ mt: 1.5 }} />
               <Box>
                 <Editor contentRef={contentRef} />
@@ -183,3 +192,33 @@ export default function Edit({}: Props): JSX.Element {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context: GetServerSidePropsContext,
+) => {
+  const { postId, password: beforePassword } = context.query;
+
+  let res;
+  try {
+    res = await checkPasswordPostApi({
+      postId: postId as string,
+      password: beforePassword as string,
+    });
+
+    const { categoryId } = res.data;
+
+    const getCategoryApiRes = await getCategoryApi({
+      categoryId: categoryId as string,
+    });
+
+    res.data.category = getCategoryApiRes.data.category;
+  } catch (e) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: res.data,
+  };
+};

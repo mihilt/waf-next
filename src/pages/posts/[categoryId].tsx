@@ -14,9 +14,9 @@ import {
   useTheme,
 } from '@mui/material';
 
-import StarsIcon from '@mui/icons-material/Stars';
 import CreateIcon from '@mui/icons-material/Create';
 import SearchIcon from '@mui/icons-material/Search';
+import StarsIcon from '@mui/icons-material/Stars';
 import moment from 'moment';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -26,15 +26,16 @@ import { getPostsApi } from '../../apis';
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 import Layout from '../../layout';
-import { Posts } from '../../types';
+import { Category, Posts } from '../../types';
 import { isRecommendedPost, isSameDate } from '../../utils';
 interface Props {
   count: number;
+  category: Category;
   posts: Posts;
 }
 
 // TODO: url에 '+' 문자 있는 기본값 replace로 떼운거 다른 문자열로 변경하고 백엔드도 변경, 왜 new URL 내부에서 + 문자가 %2B로 바뀌는지 확인 필요, 기존에 +로 그냥 넣었을 때는 백엔드에서 공백 문자로 받았음.
-export default function Category({ count, posts }: Props): JSX.Element {
+export default function Category({ count, category, posts }: Props): JSX.Element {
   const isFirstRender = useRef(true);
 
   const router = useRouter();
@@ -97,7 +98,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
     <Page>
       <Layout>
         <main>
-          <CategoryHeader categoryId={categoryId as string} />
+          <CategoryHeader category={category} />
           {isSmallerThanSm ? (
             posts.map(post => (
               <Box
@@ -380,10 +381,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     ...(searchRecommended && { like: process.env.RECOMMENDED_POST_LIKE as string }),
   };
 
-  const res = await getPostsApi(param);
-  const { count, result: posts } = res.data;
+  const getPostsApiRes = await getPostsApi(param);
+  const { count, category, posts } = getPostsApiRes.data;
 
   return {
-    props: { count, posts },
+    props: { count, category, posts },
   };
 };

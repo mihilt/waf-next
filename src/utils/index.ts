@@ -5,3 +5,9 @@ export const isSameDate = (date1: Date, date2: Date) =>
 
 export const isRecommendedPost = (like: number) =>
   like >= Number(process.env.RECOMMENDED_POST_LIKE);
+
+export const clearQueryParams = () => {
+  const currentUrl = new URL(window.location.href);
+  currentUrl.search = '';
+  window.history.replaceState(null, '', currentUrl.href);
+};

@@ -1,5 +1,12 @@
 import requestApi from '../lib/api';
 
+export interface GetCategoriesApiProps {
+  isGetRecentPosts?: boolean;
+}
+
+export interface getCategoryApiProps {
+  categoryId: string;
+}
 export interface GetPostsApiProps {
   page?: string;
   limit?: number;
@@ -65,6 +72,15 @@ export interface DislikeCommentApiProps {
   postId: string;
   commentId: string;
 }
+
+// Category
+export const getCategoriesApi = (data: GetCategoriesApiProps) => {
+  return requestApi.get('category', { params: data });
+};
+
+export const getCategoryApi = (data: getCategoryApiProps) => {
+  return requestApi.get(`category/${data.categoryId}`);
+};
 
 // Post
 export const getPostsApi = (data: GetPostsApiProps) => {

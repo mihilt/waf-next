@@ -2,16 +2,20 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } fro
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useRef } from 'react';
-import { postPostApi } from '../../apis';
 import { toast } from 'react-toastify';
+import { getCategoryApi, postPostApi } from '../../apis';
 
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
 import Layout from '../../layout';
+import { Category } from '../../types';
 
-interface Props {}
+interface Props {
+  category: Category;
+}
 
-export default function Writing({}: Props): JSX.Element {
+export default function Writing({ category }: Props): JSX.Element {
   const router = useRouter();
   const { categoryId } = router.query;
 
@@ -79,13 +83,18 @@ export default function Writing({}: Props): JSX.Element {
       <Page>
         <Layout>
           <main>
-            <CategoryHeader categoryId={categoryId as string} />
+            <CategoryHeader category={category} />
             <Box sx={{ p: 2 }}>
               <FormControl fullWidth>
                 <InputLabel id="category-label">카테고리</InputLabel>
-                {categoryId && (
-                  <Select disabled labelId="category-label" value={categoryId} label="카테고리">
-                    <MenuItem value={categoryId}>{categoryId}</MenuItem>
+                {category && (
+                  <Select
+                    disabled
+                    labelId="category-label"
+                    value={category.categoryId}
+                    label="카테고리"
+                  >
+                    <MenuItem value={category.categoryId}>{category.name}</MenuItem>
                   </Select>
                 )}
               </FormControl>
@@ -146,3 +155,24 @@ export default function Writing({}: Props): JSX.Element {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context: GetServerSidePropsContext,
+) => {
+  const { categoryId } = context.query;
+
+  let res;
+  try {
+    res = await getCategoryApi({
+      categoryId: categoryId as string,
+    });
+  } catch (e) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: res.data,
+  };
+};

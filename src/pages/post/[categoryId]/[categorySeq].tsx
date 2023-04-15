@@ -31,9 +31,10 @@ import {
 import CategoryHeader from '../../../components/categoryHeader';
 import Page from '../../../components/page';
 import Layout from '../../../layout';
-import { Comment, Comments, Post } from '../../../types';
+import { Category, Comment, Comments, Post } from '../../../types';
 
 interface Props {
+  category: Category;
   author: string;
   categoryId: string;
   categorySeq: string;
@@ -136,6 +137,7 @@ const DeleteEditModal = ({
 };
 
 export default function CategorySeq({
+  category,
   author,
   categoryId,
   categorySeq,
@@ -367,7 +369,7 @@ export default function CategorySeq({
     <Page>
       <Layout>
         <main>
-          <CategoryHeader categoryId={categoryId as string} />
+          <CategoryHeader category={category} />
           <DeleteEditModal
             openModal={openModal}
             setOpenModal={setOpenModal}

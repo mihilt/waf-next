@@ -24,3 +24,10 @@ export interface Comment {
   createdAt: string;
   comments?: Comments;
 }
+
+export interface Category {
+  categoryId: string;
+  name: string;
+  auth?: boolean;
+  recentPosts?: Post[];
+}
