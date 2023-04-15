@@ -3,17 +3,17 @@ import requestApi from '../lib/api';
 export interface GetPostsApiProps {
   page?: string;
   limit?: number;
-  category?: string;
+  categoryId?: string;
   like?: string;
 }
 
 export interface GetPostApiProps {
-  category: string;
+  categoryId: string;
   categorySeq: string;
 }
 
 export interface PostPostApiProps {
-  category: string;
+  categoryId: string;
   title: string;
   content: string;
   author: string;
@@ -72,7 +72,7 @@ export const getPostsApi = (data: GetPostsApiProps) => {
 };
 
 export const getPostApi = (data: GetPostApiProps) => {
-  return requestApi.get(`post/${data.category}/${data.categorySeq}`);
+  return requestApi.get(`post/${data.categoryId}/${data.categorySeq}`);
 };
 
 export const postPostApi = (data: PostPostApiProps) => {

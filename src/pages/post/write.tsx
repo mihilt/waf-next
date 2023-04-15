@@ -13,7 +13,7 @@ interface Props {}
 
 export default function Writing({}: Props): JSX.Element {
   const router = useRouter();
-  const { category } = router.query;
+  const { categoryId } = router.query;
 
   const authorRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
@@ -55,7 +55,13 @@ export default function Writing({}: Props): JSX.Element {
 
     let res;
     try {
-      res = await postPostApi({ title, content, category: category as string, author, password });
+      res = await postPostApi({
+        title,
+        content,
+        categoryId: categoryId as string,
+        author,
+        password,
+      });
     } catch (e) {
       console.log(`ERROR: ${e}`);
       toast.error('글 등록에 실패했습니다.');
@@ -63,7 +69,7 @@ export default function Writing({}: Props): JSX.Element {
     }
 
     if (res.status === 201) {
-      router.push(`/post/${category}/${res.data.categorySeq}`);
+      router.push(`/post/${categoryId}/${res.data.categorySeq}`);
       toast.success('글을 등록했습니다.');
     }
   };
@@ -73,13 +79,13 @@ export default function Writing({}: Props): JSX.Element {
       <Page>
         <Layout>
           <main>
-            <CategoryHeader category={category as string} />
+            <CategoryHeader categoryId={categoryId as string} />
             <Box sx={{ p: 2 }}>
               <FormControl fullWidth>
                 <InputLabel id="category-label">카테고리</InputLabel>
-                {category && (
-                  <Select disabled labelId="category-label" value={category} label="카테고리">
-                    <MenuItem value={category}>{category}</MenuItem>
+                {categoryId && (
+                  <Select disabled labelId="category-label" value={categoryId} label="카테고리">
+                    <MenuItem value={categoryId}>{categoryId}</MenuItem>
                   </Select>
                 )}
               </FormControl>
@@ -114,7 +120,7 @@ export default function Writing({}: Props): JSX.Element {
                   <Button
                     variant="contained"
                     onClick={() => {
-                      router.push(`/posts/${category}`);
+                      router.push(`/posts/${categoryId}`);
                     }}
                   >
                     목록

@@ -40,7 +40,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
   const router = useRouter();
   const theme = useTheme();
 
-  const { category, page } = router.query;
+  const { categoryId, page } = router.query;
 
   const [searchType, setSearchType] = useState('title+content');
   const [searchValue, setSearchValue] = useState('');
@@ -97,7 +97,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
     <Page>
       <Layout>
         <main>
-          <CategoryHeader category={category as string} />
+          <CategoryHeader categoryId={categoryId as string} />
           {isSmallerThanSm ? (
             posts.map(post => (
               <Box
@@ -113,7 +113,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   cursor: 'pointer',
                 }}
                 onClick={() => {
-                  router.push(`/post/${category}/${post.categorySeq}`);
+                  router.push(`/post/${categoryId}/${post.categorySeq}`);
                 }}
               >
                 <Box sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
@@ -198,7 +198,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     cursor: 'pointer',
                   }}
                   onClick={() => {
-                    router.push(`/post/${category}/${post.categorySeq}`);
+                    router.push(`/post/${categoryId}/${post.categorySeq}`);
                   }}
                 >
                   <Grid item xs={0.75}>
@@ -268,7 +268,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                 variant="contained"
                 startIcon={<CreateIcon />}
                 onClick={() => {
-                  router.push(`/post/write?category=${category}`);
+                  router.push(`/post/write?categoryId=${categoryId}`);
                 }}
               >
                 글쓰기
@@ -365,7 +365,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext,
 ) => {
   const {
-    category,
+    categoryId,
     'search-type': searchType,
     'search-value': searchValue,
     page,
@@ -373,7 +373,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   } = context.query;
 
   const param = {
-    category: category as string,
+    categoryId: categoryId as string,
     page: page as string,
     ...(searchType &&
       searchValue && { searchType: searchType as string, searchValue: searchValue as string }),

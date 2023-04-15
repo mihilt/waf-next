@@ -14,7 +14,7 @@ interface Props {}
 export default function Edit({}: Props): JSX.Element {
   const router = useRouter();
 
-  const [category, setCategory] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [beforePassword, setBeforePassword] = useState('');
   const [postId, setPostId] = useState('');
 
@@ -36,9 +36,9 @@ export default function Edit({}: Props): JSX.Element {
           password: beforePassword as string,
         });
 
-        const { category, author, title, content, password } = res.data;
+        const { categoryId, author, title, content, password } = res.data;
 
-        setCategory(category);
+        setCategoryId(categoryId);
         setBeforePassword(password);
         setPostId(postId as string);
 
@@ -106,7 +106,7 @@ export default function Edit({}: Props): JSX.Element {
     }
 
     if (res.status === 200) {
-      router.push(`/post/${category}/${res.data.categorySeq}`);
+      router.push(`/post/${categoryId}/${res.data.categorySeq}`);
       toast.success('글을 수정했습니다.');
     }
   };
@@ -116,13 +116,13 @@ export default function Edit({}: Props): JSX.Element {
       <Page>
         <Layout>
           <main>
-            <CategoryHeader category={category as string} />
+            <CategoryHeader categoryId={categoryId as string} />
             <Box sx={{ p: 2 }}>
               <FormControl fullWidth>
                 <InputLabel id="category-label">카테고리</InputLabel>
-                {category && (
-                  <Select disabled labelId="category-label" value={category} label="카테고리">
-                    <MenuItem value={category}>{category}</MenuItem>
+                {categoryId && (
+                  <Select disabled labelId="category-label" value={categoryId} label="카테고리">
+                    <MenuItem value={categoryId}>{categoryId}</MenuItem>
                   </Select>
                 )}
               </FormControl>
@@ -157,7 +157,7 @@ export default function Edit({}: Props): JSX.Element {
                   <Button
                     variant="contained"
                     onClick={() => {
-                      router.push(`/posts/${category}`);
+                      router.push(`/posts/${categoryId}`);
                     }}
                   >
                     목록

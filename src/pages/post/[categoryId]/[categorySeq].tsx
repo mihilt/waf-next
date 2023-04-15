@@ -35,7 +35,7 @@ import { Comment, Comments, Post } from '../../../types';
 
 interface Props {
   author: string;
-  category: string;
+  categoryId: string;
   categorySeq: string;
   comments: Comments;
   content: string;
@@ -137,7 +137,7 @@ const DeleteEditModal = ({
 
 export default function CategorySeq({
   author,
-  category,
+  categoryId,
   categorySeq,
   comments,
   content,
@@ -367,7 +367,7 @@ export default function CategorySeq({
     <Page>
       <Layout>
         <main>
-          <CategoryHeader category={category as string} />
+          <CategoryHeader categoryId={categoryId as string} />
           <DeleteEditModal
             openModal={openModal}
             setOpenModal={setOpenModal}
@@ -435,7 +435,7 @@ export default function CategorySeq({
                 <Button
                   variant="contained"
                   onClick={() => {
-                    router.push(`/posts/${category}`);
+                    router.push(`/posts/${categoryId}`);
                   }}
                 >
                   목록
@@ -475,7 +475,7 @@ export default function CategorySeq({
                     setModalApi(() => deletePostApi);
                     setModalDataForApi({ postId });
                     setModalApiSuccessedFunc(() => () => {
-                      router.push(`/posts/${category}`);
+                      router.push(`/posts/${categoryId}`);
                       setOpenModal(false);
                       toast.success('글을 삭제했습니다.');
                     });
@@ -525,15 +525,18 @@ export default function CategorySeq({
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext,
 ) => {
-  const { category, categorySeq } = context.query;
+  const { categoryId, categorySeq } = context.query;
 
   let res;
   try {
-    res = await getPostApi({ category: category as string, categorySeq: categorySeq as string });
+    res = await getPostApi({
+      categoryId: categoryId as string,
+      categorySeq: categorySeq as string,
+    });
   } catch (e) {
     return {
       /* redirect: {
-        destination: `/posts/${category}`,
+        destination: `/posts/${categoryId}`,
         permanent: false,
       }, */
       notFound: true,
