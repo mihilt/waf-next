@@ -3,7 +3,7 @@ export interface Comments extends Array<Comment> {}
 
 export interface Post {
   postId: string;
-  categoryId: string;
+  categorySeq: string;
   title: string;
   ip: string;
   commentCount: number;
@@ -18,7 +18,7 @@ export interface Comment {
   commentId: string;
   ip: string;
   author: string;
-  contents: string;
+  content: string;
   like: number;
   deleted: boolean;
   createdAt: string;

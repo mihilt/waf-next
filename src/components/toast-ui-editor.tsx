@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { uploadApi } from '../apis/upload';
 
 interface Props {
-  contentsRef: any;
+  contentRef: any;
 }
 
 const onUploadImage = async (blob: Blob | File, callback: any) => {
@@ -15,7 +15,7 @@ const onUploadImage = async (blob: Blob | File, callback: any) => {
   callback(`${process.env.API_URL}${response.data.url}`, 'image');
 };
 
-export default function ToastUiEditor({ contentsRef }: Props): JSX.Element {
+export default function ToastUiEditor({ contentRef }: Props): JSX.Element {
   useEffect(() => {
     new Editor({
       el: window.document.querySelector('#editor') as HTMLElement,
@@ -38,7 +38,7 @@ export default function ToastUiEditor({ contentsRef }: Props): JSX.Element {
 
   return (
     <>
-      <div ref={contentsRef} id="editor" />
+      <div ref={contentRef} id="editor" />
       <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js" defer />
     </>
   );

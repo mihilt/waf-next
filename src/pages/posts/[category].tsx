@@ -42,7 +42,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
 
   const { category, page } = router.query;
 
-  const [searchType, setSearchType] = useState('title+contents');
+  const [searchType, setSearchType] = useState('title+content');
   const [searchValue, setSearchValue] = useState('');
   const [isSearchRecommended, setIsSearchRecommended] = useState(false);
 
@@ -57,7 +57,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
       'search-recommended': searchRecommended,
     } = router.query;
     setSearchType(
-      searchType === undefined ? 'title+contents' : String(searchType)?.replace(' ', '+'),
+      searchType === undefined ? 'title+content' : String(searchType)?.replace(' ', '+'),
     );
     setSearchValue(searchValue === undefined ? '' : String(searchValue));
 
@@ -113,7 +113,7 @@ export default function Category({ count, posts }: Props): JSX.Element {
                   cursor: 'pointer',
                 }}
                 onClick={() => {
-                  router.push(`/post/${category}/${post.categoryId}`);
+                  router.push(`/post/${category}/${post.categorySeq}`);
                 }}
               >
                 <Box sx={{ textAlign: 'left', fontSize: '0.9rem' }}>
@@ -198,11 +198,11 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     cursor: 'pointer',
                   }}
                   onClick={() => {
-                    router.push(`/post/${category}/${post.categoryId}`);
+                    router.push(`/post/${category}/${post.categorySeq}`);
                   }}
                 >
                   <Grid item xs={0.75}>
-                    {post.categoryId}
+                    {post.categorySeq}
                   </Grid>
                   <Grid item xs={6} sx={{ textAlign: 'left' }}>
                     {isRecommendedPost(post.like) && (
@@ -314,9 +314,9 @@ export default function Category({ count, posts }: Props): JSX.Element {
                     setSearchType(e.target.value as string);
                   }}
                 >
-                  <MenuItem value={'title+contents'}>제목+본문</MenuItem>
+                  <MenuItem value={'title+content'}>제목+본문</MenuItem>
                   <MenuItem value={'title'}>제목</MenuItem>
-                  <MenuItem value={'contents'}>본문</MenuItem>
+                  <MenuItem value={'content'}>본문</MenuItem>
                   <MenuItem value={'author'}>작성자</MenuItem>
                 </Select>
               </FormControl>

@@ -36,9 +36,9 @@ import { Comment, Comments, Post } from '../../../types';
 interface Props {
   author: string;
   category: string;
-  categoryId: string;
+  categorySeq: string;
   comments: Comments;
-  contents: string;
+  content: string;
   createdAt: string;
   ip: string;
   like: number;
@@ -135,12 +135,12 @@ const DeleteEditModal = ({
   );
 };
 
-export default function CategoryId({
+export default function CategorySeq({
   author,
   category,
-  categoryId,
+  categorySeq,
   comments,
-  contents,
+  content,
   createdAt,
   ip,
   like,
@@ -161,7 +161,7 @@ export default function CategoryId({
   const CommentInputSection = ({ parentCommentId }: CommentInputSectionProps) => {
     const commentAuthorRef = useRef<any>(null);
     const commentPasswordRef = useRef<any>(null);
-    const commentContentsRef = useRef<any>(null);
+    const commentcontentRef = useRef<any>(null);
 
     return (
       <>
@@ -192,7 +192,7 @@ export default function CategoryId({
             rows={3}
             placeholder={'댓글을 입력해주세요.'}
             inputProps={{ style: { fontSize: '0.7rem' } }}
-            inputRef={commentContentsRef}
+            inputRef={commentcontentRef}
           />
           <Box sx={{ ml: 1 }} />
           <Button
@@ -200,7 +200,7 @@ export default function CategoryId({
             onClick={async () => {
               const author = commentAuthorRef.current.value;
               const password = commentPasswordRef.current.value;
-              const contents = commentContentsRef.current.value;
+              const content = commentcontentRef.current.value;
 
               if (!author) {
                 toast.error('작성자를 입력해주세요.');
@@ -214,9 +214,9 @@ export default function CategoryId({
                 return;
               }
 
-              if (!contents) {
+              if (!content) {
                 toast.error('내용을 입력해주세요.');
-                commentContentsRef.current.focus();
+                commentcontentRef.current.focus();
                 return;
               }
 
@@ -224,8 +224,8 @@ export default function CategoryId({
                 postId,
                 author,
                 password,
-                contents,
-                parentComment: parentCommentId,
+                content,
+                parentCommentId: parentCommentId,
               });
 
               router.replace(router.asPath, undefined, { scroll: false });
@@ -272,7 +272,7 @@ export default function CategoryId({
           <Box>추천: {comment.like}</Box>
         </Box>
         <Box sx={{ mt: 0.5 }} />
-        <Box sx={{ fontSize: '0.8rem' }}>{comment.contents}</Box>
+        <Box sx={{ fontSize: '0.8rem' }}>{comment.content}</Box>
         <Box sx={{ mt: 0.5 }} />
         <Box sx={{ fontSize: '0.7rem' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -396,7 +396,7 @@ export default function CategoryId({
             <Box sx={{ mt: isSmallerThanSm ? 2 : 5 }} />
             <Box
               sx={{ fontSize: '0.8rem', px: 0.5 }}
-              dangerouslySetInnerHTML={{ __html: contents }}
+              dangerouslySetInnerHTML={{ __html: content }}
             />
             <Box sx={{ mt: isSmallerThanSm ? 2 : 5 }} />
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -525,11 +525,11 @@ export default function CategoryId({
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext,
 ) => {
-  const { category, categoryId } = context.query;
+  const { category, categorySeq } = context.query;
 
   let res;
   try {
-    res = await getPostApi({ category: category as string, categoryId: categoryId as string });
+    res = await getPostApi({ category: category as string, categorySeq: categorySeq as string });
   } catch (e) {
     return {
       /* redirect: {

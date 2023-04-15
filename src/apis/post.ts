@@ -9,13 +9,13 @@ export interface GetPostsApiProps {
 
 export interface GetPostApiProps {
   category: string;
-  categoryId: string;
+  categorySeq: string;
 }
 
 export interface PostPostApiProps {
   category: string;
   title: string;
-  contents: string;
+  content: string;
   author: string;
   password: string;
 }
@@ -37,7 +37,7 @@ export interface PatchPostApiProps {
   postId: string;
   author: string;
   title: string;
-  contents: string;
+  content: string;
   password: string;
   newPassword: string;
 }
@@ -45,9 +45,9 @@ export interface PatchPostApiProps {
 export interface PostCommentApiProps {
   postId: string;
   author: string;
-  contents: string;
+  content: string;
   password: string;
-  parentComment?: string;
+  parentCommentId?: string;
 }
 
 export interface DeleteCommentApiProps {
@@ -72,7 +72,7 @@ export const getPostsApi = (data: GetPostsApiProps) => {
 };
 
 export const getPostApi = (data: GetPostApiProps) => {
-  return requestApi.get(`post/${data.category}/${data.categoryId}`);
+  return requestApi.get(`post/${data.category}/${data.categorySeq}`);
 };
 
 export const postPostApi = (data: PostPostApiProps) => {

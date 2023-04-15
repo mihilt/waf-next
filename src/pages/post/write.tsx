@@ -18,13 +18,13 @@ export default function Writing({}: Props): JSX.Element {
   const authorRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const titleRef = useRef<any>(null);
-  const contentsRef = useRef<any>(null);
+  const contentRef = useRef<any>(null);
 
   const Editor = dynamic(() => import('../../components/toast-ui-editor'), { ssr: false });
 
   const handleWrite = async () => {
     const title = titleRef.current.value;
-    const contents = contentsRef.current.querySelector(
+    const content = contentRef.current.querySelector(
       '.ProseMirror.toastui-editor-contents',
     ).innerHTML;
     const author = authorRef.current.value;
@@ -47,15 +47,15 @@ export default function Writing({}: Props): JSX.Element {
       titleRef.current.focus();
       return;
     }
-    if (contentsRef.current.innerText === '\n') {
+    if (contentRef.current.innerText === '\n') {
       toast.error('내용을 입력해주세요.');
-      contentsRef.current.querySelector('.ProseMirror.toastui-editor-contents').focus();
+      contentRef.current.querySelector('.ProseMirror.toastui-editor-contents').focus();
       return;
     }
 
     let res;
     try {
-      res = await postPostApi({ title, contents, category: category as string, author, password });
+      res = await postPostApi({ title, content, category: category as string, author, password });
     } catch (e) {
       console.log(`ERROR: ${e}`);
       toast.error('글 등록에 실패했습니다.');
@@ -63,7 +63,7 @@ export default function Writing({}: Props): JSX.Element {
     }
 
     if (res.status === 201) {
-      router.push(`/post/${category}/${res.data.categoryId}`);
+      router.push(`/post/${category}/${res.data.categorySeq}`);
       toast.success('글을 등록했습니다.');
     }
   };
@@ -106,7 +106,7 @@ export default function Writing({}: Props): JSX.Element {
               <TextField fullWidth label="제목" variant="outlined" inputRef={titleRef} />
               <Box sx={{ mt: 1.5 }} />
               <Box>
-                <Editor contentsRef={contentsRef} />
+                <Editor contentRef={contentRef} />
               </Box>
               <Box sx={{ mt: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

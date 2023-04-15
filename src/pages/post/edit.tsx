@@ -22,7 +22,7 @@ export default function Edit({}: Props): JSX.Element {
   const authorRef = useRef<any>(null);
   const newPasswordRef = useRef<any>(null);
   const titleRef = useRef<any>(null);
-  const contentsRef = useRef<any>(null);
+  const contentRef = useRef<any>(null);
 
   const Editor = dynamic(() => import('../../components/toast-ui-editor'), { ssr: false });
 
@@ -36,7 +36,7 @@ export default function Edit({}: Props): JSX.Element {
           password: beforePassword as string,
         });
 
-        const { category, author, title, contents, password } = res.data;
+        const { category, author, title, content, password } = res.data;
 
         setCategory(category);
         setBeforePassword(password);
@@ -47,8 +47,8 @@ export default function Edit({}: Props): JSX.Element {
         setTimeout(() => {
           authorRef.current.value = author;
           titleRef.current.value = title;
-          contentsRef.current.querySelector('.ProseMirror.toastui-editor-contents').innerHTML =
-            contents;
+          contentRef.current.querySelector('.ProseMirror.toastui-editor-contents').innerHTML =
+            content;
         }, 500);
       } catch (e) {
         router.push('/');
@@ -60,7 +60,7 @@ export default function Edit({}: Props): JSX.Element {
 
   const handleEdit = async () => {
     const title = titleRef.current.value;
-    const contents = contentsRef.current.querySelector(
+    const content = contentRef.current.querySelector(
       '.ProseMirror.toastui-editor-contents',
     ).innerHTML;
     const author = authorRef.current.value;
@@ -83,9 +83,9 @@ export default function Edit({}: Props): JSX.Element {
       titleRef.current.focus();
       return;
     }
-    if (contentsRef.current.innerText === '\n') {
+    if (contentRef.current.innerText === '\n') {
       toast.error('내용을 입력해주세요.');
-      contentsRef.current.querySelector('.ProseMirror.toastui-editor-contents').focus();
+      contentRef.current.querySelector('.ProseMirror.toastui-editor-contents').focus();
       return;
     }
 
@@ -94,7 +94,7 @@ export default function Edit({}: Props): JSX.Element {
       res = await patchPostApi({
         postId,
         title,
-        contents,
+        content,
         author,
         newPassword,
         password: beforePassword,
@@ -106,7 +106,7 @@ export default function Edit({}: Props): JSX.Element {
     }
 
     if (res.status === 200) {
-      router.push(`/post/${category}/${res.data.categoryId}`);
+      router.push(`/post/${category}/${res.data.categorySeq}`);
       toast.success('글을 수정했습니다.');
     }
   };
@@ -149,7 +149,7 @@ export default function Edit({}: Props): JSX.Element {
               <TextField fullWidth label="제목" variant="outlined" inputRef={titleRef} />
               <Box sx={{ mt: 1.5 }} />
               <Box>
-                <Editor contentsRef={contentsRef} />
+                <Editor contentRef={contentRef} />
               </Box>
               <Box sx={{ mt: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
