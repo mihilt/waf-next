@@ -1,15 +1,15 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { checkPasswordPostApi, getCategoryApi, patchPostApi } from '../../apis';
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
-
+import ToastUiSkeleton from '../../components/toast-ui-skeleton';
 import Layout from '../../layout';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { Category } from '../../types';
 import { clearQueryParams } from '../../utils';
 interface Props {
@@ -40,7 +40,10 @@ export default function Edit({
   const titleRef = useRef<any>(null);
   const contentRef = useRef<any>(null);
 
-  const Editor = dynamic(() => import('../../components/toast-ui-editor'), { ssr: false });
+  const Editor = dynamic(() => import('../../components/toast-ui-editor'), {
+    ssr: false,
+    loading: () => <ToastUiSkeleton />,
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {

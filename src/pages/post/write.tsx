@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useRef } from 'react';
 import { toast } from 'react-toastify';
 import { getCategoryApi, postPostApi } from '../../apis';
+import ToastUiSkeleton from '../../components/toast-ui-skeleton';
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import CategoryHeader from '../../components/categoryHeader';
@@ -24,7 +25,10 @@ export default function Writing({ category }: Props): JSX.Element {
   const titleRef = useRef<any>(null);
   const contentRef = useRef<any>(null);
 
-  const Editor = dynamic(() => import('../../components/toast-ui-editor'), { ssr: false });
+  const Editor = dynamic(() => import('../../components/toast-ui-editor'), {
+    ssr: false,
+    loading: () => <ToastUiSkeleton />,
+  });
 
   const handleWrite = async () => {
     const title = titleRef.current.value;
