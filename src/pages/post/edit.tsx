@@ -8,7 +8,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { checkPasswordPostApi, getCategoryApi, patchPostApi } from '../../apis';
 import CategoryHeader from '../../components/categoryHeader';
 import Page from '../../components/page';
-import ToastUiSkeleton from '../../components/toast-ui-skeleton';
+import ToastUiSkeleton from '../../components/toastUISkeleton';
 import Layout from '../../layout';
 import { Category } from '../../types';
 import { clearQueryParams } from '../../utils';
@@ -40,7 +40,7 @@ export default function Edit({
   const titleRef = useRef<any>(null);
   const contentRef = useRef<any>(null);
 
-  const Editor = dynamic(() => import('../../components/toast-ui-editor'), {
+  const Editor = dynamic(() => import('../../components/toastUIEditor'), {
     ssr: false,
     loading: () => <ToastUiSkeleton />,
   });

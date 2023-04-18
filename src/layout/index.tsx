@@ -10,7 +10,11 @@ export default function Layout({ children }: Props): JSX.Element {
     <>
       <Header />
       <Box sx={{ backgroundColor: '#f5f5f5', display: 'flex', justifyContent: 'center' }}>
-        <Box sx={{ backgroundColor: '#fff', width: '100%', maxWidth: '1024px' }}>{children}</Box>
+        <Box
+          sx={{ backgroundColor: '#fff', width: '100%', maxWidth: '1024px', overflow: 'hidden' }}
+        >
+          {children}
+        </Box>
       </Box>
     </>
   );
