@@ -7,7 +7,9 @@ const nextConfig = {
     API_VERSION: process.env.API_VERSION,
     RECOMMENDED_POST_LIKE: 5,
   },
-
+  devIndicators: {
+    buildActivity: false,
+  },
   async rewrites() {
     return [
       {
